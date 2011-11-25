@@ -48,17 +48,23 @@ class HeapNEW extends HeapAudit {
 				 start,
 				 end);
 
+	    // STACK [...|obj|...|arg]
 	    mv.visitVarInsn(args[i].getOpcode(Opcodes.ISTORE),
 			    vars[i]);
+	    // STACK [...|obj|...]
 
 	}
 
+	// STACK [...|obj]
 	mv.visitInsn(Opcodes.DUP);
+	// STACK [...|obj|obj]
 
 	for (int i = 0; i < args.length; ++i) {
 
+	    // STACK [...|obj|obj|...]
 	    mv.visitVarInsn(args[i].getOpcode(Opcodes.ILOAD),
 			    vars[i]);
+	    // STACK [...|obj|obj|...|arg]
 
 	}
 

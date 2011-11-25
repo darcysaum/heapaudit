@@ -145,6 +145,25 @@ public abstract class HeapAudit {
 
     }
 
+    public static void record(Object obj,
+			      int[] dimensions,
+			      String type) {
+
+	int count = 1;
+
+	for (int i = 0; i < dimensions.length; ++i) {
+
+	    count *= dimensions[i];
+
+	}
+
+	record(obj,
+	       count,
+	       type,
+	       -1);
+
+    }
+
     public static void record(int count,
                               String type,
                               long size) {

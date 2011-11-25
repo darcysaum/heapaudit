@@ -327,6 +327,19 @@ public class HeapMethod extends HeapAudit implements MethodVisitor {
 
 	    break;
 
+	case Opcodes.INVOKESTATIC:
+
+	    if (owner.equals("java/lang/reflect/Array") &&
+		name.equals("newInstance")) {
+
+		HeapNEWINSTANCE.beforeX(debug,
+					trace,
+					mv);
+
+	    }
+
+	    break;
+
 	case Opcodes.INVOKEVIRTUAL:
 
 	    if (name.equals("newInstance")) {
@@ -389,12 +402,16 @@ public class HeapMethod extends HeapAudit implements MethodVisitor {
 
 		if (signature.equals("(Ljava/lang/Class;I)Ljava/lang/Object;")) {
 
-		    System.out.println("\tNOT IMPLEMENTED!");
+		    HeapNEWINSTANCE.after(debug,
+					  trace,
+					  mv);
 
 		}
 		else if (signature.equals("(Ljava/lang/Class;[I)Ljava/lang/Object;")) {
 
-		    System.out.println("\tNOT IMPLEMENTED!");
+		    HeapNEWINSTANCE.afterY(debug,
+					   trace,
+					   mv);
 
 		}
 
