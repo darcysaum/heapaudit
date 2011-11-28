@@ -1,5 +1,6 @@
 package com.foursquare.heapaudit;
 
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.Opcodes;
 
@@ -21,15 +22,13 @@ class HeapNEWINSTANCE extends HeapAudit {
 		  mv,
 		  "\tNEWINSTANCE.before");
 
-	// TODO: Add logic to skip following if class->size already computed.
-
-	// STACK: [...|class]
-	mv.visitLdcInsn(-1);
-	// STACK: [...|class|count]
-	mv.visitInsn(Opcodes.SWAP);
-	// STACK: [...|count|class]
-	mv.visitInsn(Opcodes.DUP);
-	// STACK: [...|count|class|class]
+        // STACK: [...|class]
+        mv.visitLdcInsn(-1);
+        // STACK: [...|class|count]
+        mv.visitInsn(Opcodes.SWAP);
+        // STACK: [...|count|class]
+        mv.visitInsn(Opcodes.DUP);
+        // STACK: [...|count|class|class]
 
     }
 
@@ -44,25 +43,64 @@ class HeapNEWINSTANCE extends HeapAudit {
 		  mv,
 		  "\tNEWINSTANCE.after");
 
-	// STACK: [...|count|class|obj]
-	mv.visitInsn(Opcodes.DUP_X2);
-	// STACK: [...|obj|count|class|obj]
-	mv.visitInsn(Opcodes.DUP_X2);
-	// STACK: [...|obj|obj|count|class|obj]
-	mv.visitInsn(Opcodes.POP);
-	// STACK: [...|obj|obj|count|class]
-	mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-			   "java/lang/Class",
-			   "getName",
-			   "()Ljava/lang/String;");
-	// STACK: [...|obj|obj|count|type]
-	mv.visitLdcInsn((long)-1);
-	// STACK: [...|obj|obj|count|type|size]
-	mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			   "com/foursquare/heapaudit/HeapAudit",
-			   "record",
-			   "(Ljava/lang/Object;ILjava/lang/String;J)V");
+	Label cleanup = new Label();
+
+	Label finish = new Label();
+
+	if (HeapSettings.dynamic) {
+
+	    // STACK: [...|count|class|obj]
+	    mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+			       "com/foursquare/heapaudit/HeapRecorder",
+			       "hasRecorders",
+			       "()Z");
+	    // STACK: [...|count|class|obj|status]
+	    mv.visitJumpInsn(Opcodes.IFEQ,
+			     cleanup);
+	    // STACK: [...|count|class|obj]
+
+	}
+
+        // STACK: [...|count|class|obj]
+        mv.visitInsn(Opcodes.DUP_X2);
+        // STACK: [...|obj|count|class|obj]
+        mv.visitInsn(Opcodes.DUP_X2);
+        // STACK: [...|obj|obj|count|class|obj]
+        mv.visitInsn(Opcodes.POP);
+        // STACK: [...|obj|obj|count|class]
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                           "java/lang/Class",
+                           "getName",
+                           "()Ljava/lang/String;");
+        // STACK: [...|obj|obj|count|type]
+        mv.visitLdcInsn((long)-1);
+        // STACK: [...|obj|obj|count|type|size]
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                           "com/foursquare/heapaudit/HeapAudit",
+                           "record",
+                           "(Ljava/lang/Object;ILjava/lang/String;J)V");
 	// STACK: [...|obj]
+
+	if (HeapSettings.dynamic) {
+
+	    // STACK: [...|obj]
+	    mv.visitJumpInsn(Opcodes.GOTO,
+			     finish);
+	    // STACK: [...|count|class|obj]
+	    mv.visitLabel(cleanup);
+	    // STACK: [...|count|class|obj]
+	    mv.visitInsn(Opcodes.SWAP);
+	    // STACK: [...|count|obj|class]
+	    mv.visitInsn(Opcodes.POP);
+	    // STACK: [...|count|obj]
+	    mv.visitInsn(Opcodes.SWAP);
+	    // STACK: [...|obj|count]
+	    mv.visitInsn(Opcodes.POP);
+	    // STACK: [...|obj]
+	    mv.visitLabel(finish);
+	    // STACK: [...|obj]
+
+	}
 
     }
 
@@ -77,13 +115,13 @@ class HeapNEWINSTANCE extends HeapAudit {
 		  mv,
 		  "\tNEWINSTANCE.beforeX");
 
-	// STACK: [...|class|count]
-	mv.visitInsn(Opcodes.SWAP);
-	// STACK: [...|count|class]
-	mv.visitInsn(Opcodes.DUP2);
-	// STACK: [...|count|class|count|class]
-	mv.visitInsn(Opcodes.SWAP);
-	// STACK: [...|count|class|class|count]
+        // STACK: [...|class|count]
+        mv.visitInsn(Opcodes.SWAP);
+        // STACK: [...|count|class]
+        mv.visitInsn(Opcodes.DUP2);
+        // STACK: [...|count|class|count|class]
+        mv.visitInsn(Opcodes.SWAP);
+        // STACK: [...|count|class|class|count]
 
     }
 
@@ -98,23 +136,62 @@ class HeapNEWINSTANCE extends HeapAudit {
 		  mv,
 		  "\tNEWINSTANCE.afterY");
 
-	// STACK: [...|count|class|obj]
-	mv.visitInsn(Opcodes.DUP_X2);
-	// STACK: [...|obj|count|class|obj]
-	mv.visitInsn(Opcodes.DUP_X2);
-	// STACK: [...|obj|obj|count|class|obj]
-	mv.visitInsn(Opcodes.POP);
-	// STACK: [...|obj|obj|count|class]
-	mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+        Label cleanup = new Label();
+
+        Label finish = new Label();
+
+	if (HeapSettings.dynamic) {
+
+	    // STACK: [...|count|class|obj]
+	    mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+			       "com/foursquare/heapaudit/HeapRecorder",
+			       "hasRecorders",
+			       "()Z");
+	    // STACK: [...|count|class|obj|status]
+	    mv.visitJumpInsn(Opcodes.IFEQ,
+			     cleanup);
+	    // STACK: [...|count|class|obj]
+
+	}
+
+        // STACK: [...|count|class|obj]
+        mv.visitInsn(Opcodes.DUP_X2);
+        // STACK: [...|obj|count|class|obj]
+        mv.visitInsn(Opcodes.DUP_X2);
+        // STACK: [...|obj|obj|count|class|obj]
+        mv.visitInsn(Opcodes.POP);
+        // STACK: [...|obj|obj|count|class]
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                            "java/lang/Class",
                            "getName",
                            "()Ljava/lang/String;");
-	// STACK: [...|obj|obj|count|type]
-	mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			   "com/foursquare/heapaudit/HeapAudit",
-			   "record",
-			   "(Ljava/lang/Object;[ILjava/lang/String;)V");
+        // STACK: [...|obj|obj|count|type]
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                           "com/foursquare/heapaudit/HeapAudit",
+                           "record",
+                           "(Ljava/lang/Object;[ILjava/lang/String;)V");
 	// STACK: [...|obj]
+
+	if (HeapSettings.dynamic) {
+
+	    // STACK: [...|obj]
+	    mv.visitJumpInsn(Opcodes.GOTO,
+			     finish);
+	    // STACK: [...|count|class|obj]
+	    mv.visitLabel(cleanup);
+	    // STACK: [...|count|class|obj]
+	    mv.visitInsn(Opcodes.SWAP);
+	    // STACK: [...|count|obj|class]
+	    mv.visitInsn(Opcodes.POP);
+	    // STACK: [...|count|obj]
+	    mv.visitInsn(Opcodes.SWAP);
+	    // STACK: [...|obj|count]
+	    mv.visitInsn(Opcodes.POP);
+	    // STACK: [...|obj]
+	    mv.visitLabel(finish);
+	    // STACK: [...|obj]
+
+	}
 
     }
 

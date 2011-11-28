@@ -1,5 +1,6 @@
 package com.foursquare.heapaudit;
 
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.Opcodes;
 
@@ -21,9 +22,9 @@ class HeapNEWARRAY extends HeapAudit {
 		  mv,
 		  "\tNEWARRAY.before(" + types[operand] + ")");
 
-	// STACK: [...|count]
-	mv.visitInsn(Opcodes.DUP);
-	// STACK: [...|count|count]
+        // STACK: [...|count]
+        mv.visitInsn(Opcodes.DUP);
+        // STACK: [...|count|count]
 
     }
 
@@ -39,21 +40,55 @@ class HeapNEWARRAY extends HeapAudit {
 		  mv,
 		  "\tNEWARRAY.after(" + types[operand] + ")");
 
-	// STACK: [...|count|obj]
-	mv.visitInsn(Opcodes.DUP_X1);
-	// STACK: [...|obj|count|obj]
-	mv.visitInsn(Opcodes.SWAP);
-	// STACK: [...|obj|obj|count]
+	Label cleanup = new Label();
 
-	mv.visitLdcInsn(types[operand]);
-	// STACK: [...|obj|obj|count|type]
-	mv.visitLdcInsn((long)-1);
-	// STACK: [...|obj|obj|count|type|size]
-	mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			   "com/foursquare/heapaudit/HeapAudit",
-			   "record",
-			   "(Ljava/lang/Object;ILjava/lang/String;J)V");
+	Label finish = new Label();
+
+	if (HeapSettings.dynamic) {
+
+	    // STACK: [...|count|obj]
+	    mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+			       "com/foursquare/heapaudit/HeapRecorder",
+			       "hasRecorders",
+			       "()Z");
+	    // STACK: [...|count|obj|status]
+	    mv.visitJumpInsn(Opcodes.IFEQ,
+			     cleanup);
+	    // STACK: [...|count|obj]
+
+	}
+
+	// STACK: [...|count|obj]
+        mv.visitInsn(Opcodes.DUP_X1);
+        // STACK: [...|obj|count|obj]
+        mv.visitInsn(Opcodes.SWAP);
+        // STACK: [...|obj|obj|count]
+        mv.visitLdcInsn(types[operand]);
+        // STACK: [...|obj|obj|count|type]
+        mv.visitLdcInsn((long)-1);
+        // STACK: [...|obj|obj|count|type|size]
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                           "com/foursquare/heapaudit/HeapAudit",
+                           "record",
+                           "(Ljava/lang/Object;ILjava/lang/String;J)V");
 	// STACK: [...|obj]
+
+	if (HeapSettings.dynamic) {
+
+	    // STACK: [...|obj]
+	    mv.visitJumpInsn(Opcodes.GOTO,
+			     finish);
+	    // STACK: [...|count|obj]
+	    mv.visitLabel(cleanup);
+	    // STACK: [...|count|obj]
+	    mv.visitInsn(Opcodes.SWAP);
+	    // STACK: [...|obj|count]
+	    mv.visitInsn(Opcodes.POP);
+	    // STACK: [...|obj]
+	    mv.visitLabel(finish);
+	    // STACK: [...|obj]
+
+	}
 
     }
 

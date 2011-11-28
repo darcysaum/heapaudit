@@ -84,6 +84,24 @@ class HeapNEW extends HeapAudit {
 		  mv,
 		  "\tNEW.after");
 
+	Label cleanup = new Label();
+
+	Label finish = new Label();
+
+	if (HeapSettings.dynamic) {
+
+	    // STACK: [...|obj]
+	    mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+			       "com/foursquare/heapaudit/HeapRecorder",
+			       "hasRecorders",
+			       "()Z");
+	    // STACK: [...|obj|status]
+	    mv.visitJumpInsn(Opcodes.IFEQ,
+			     cleanup);
+	    // STACK: [...|obj]
+
+	}
+
 	// STACK: [...|obj]
 	mv.visitLdcInsn(-1);
 	// STACK: [...|obj|count]
@@ -96,6 +114,21 @@ class HeapNEW extends HeapAudit {
 			   "record",
 			   "(Ljava/lang/Object;ILjava/lang/String;J)V");
 	// STACK: [...]
+
+	if (HeapSettings.dynamic) {
+
+	    // STACK: [...]
+	    mv.visitJumpInsn(Opcodes.GOTO,
+			     finish);
+	    // STACK: [...|obj]
+	    mv.visitLabel(cleanup);
+	    // STACK: [...|obj]
+	    mv.visitInsn(Opcodes.POP);
+	    // STACK: [...]
+	    mv.visitLabel(finish);
+	    // STACK: [...]
+
+	}
 
     }
 

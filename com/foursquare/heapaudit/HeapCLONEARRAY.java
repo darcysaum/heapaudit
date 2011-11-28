@@ -1,5 +1,6 @@
 package com.foursquare.heapaudit;
 
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.Opcodes;
 
@@ -20,6 +21,22 @@ class HeapCLONEARRAY extends HeapAudit {
 	execution(trace,
 		  mv,
 		  "\tCLONEARRAY.after");
+
+	Label finish = new Label();
+
+	if (HeapSettings.dynamic) {
+
+	    // STACK: [...|obj]
+	    mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+			       "com/foursquare/heapaudit/HeapRecorder",
+			       "hasRecorders",
+			       "()Z");
+	    // STACK: [...|obj|status]
+	    mv.visitJumpInsn(Opcodes.IFEQ,
+			     finish);
+	    // STACK: [...|obj]
+
+	}
 
 	// STACK: [...|obj]
 	mv.visitInsn(Opcodes.DUP);
@@ -55,6 +72,14 @@ class HeapCLONEARRAY extends HeapAudit {
 			       "com/foursquare/heapaudit/HeapAudit",
 			       "record",
 			       "(Ljava/lang/Object;Ljava/lang/String;)V");
+	    // STACK: [...|obj]
+
+	}
+
+	if (HeapSettings.dynamic) {
+
+	    // STACK: [...|obj]
+	    mv.visitLabel(finish);
 	    // STACK: [...|obj]
 
 	}

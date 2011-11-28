@@ -25,18 +25,6 @@ public class HeapInstrumenter extends HeapAudit implements ClassFileTransformer 
 	*/
     }
 
-    public final static ArrayList<String> classesToAvoid = new ArrayList<String>();
-
-    public final static ArrayList<String> classesToDebug = new ArrayList<String>();
-
-    public final static ArrayList<String> classesToTrace = new ArrayList<String>();
-
-    public final static ArrayList<String> methodsToAvoid = new ArrayList<String>();
-
-    public final static ArrayList<String> methodsToDebug = new ArrayList<String>();
-
-    public final static ArrayList<String> methodsToTrace = new ArrayList<String>();
-
     public static void premain(String args,
 			       Instrumentation instrumentation) throws UnmodifiableClassException {
 
@@ -71,17 +59,23 @@ public class HeapInstrumenter extends HeapAudit implements ClassFileTransformer 
 	//     * To instrument all classes and with extra tracing plus debug
 	//       information for all classes and methods
 	//           *C.+
-
-	classesToAvoid.addAll(Arrays.asList("java/lang/ThreadLocal",
-					    "org/objectweb/asm/.+",
-					    "com/foursquare/heapaudit/.+",
-					    "[$].*",
-					    "java/.+",
-					    "javax/.+",
-					    "org/xml/.+",
-					    "com/apple/.+",
-					    "com/sun/.+",
-					    "sun/.+"));
+	// Use +O<setting> or -O<setting> to enable or disable settings where
+	// <setting> can be one of the following
+	//     * dynamic - Enable the dynamic setting if recorders are expected
+	//                 to be dynamically registered/unregistered and most of
+	//                 the time will run with zero recorders. Disabled by
+	//                 default.
+	//           
+	HeapSettings.classesToAvoid.addAll(Arrays.asList("java/lang/ThreadLocal",
+							 "org/objectweb/asm/.+",
+							 "com/foursquare/heapaudit/.+",
+							 "[$].*",
+							 "java/.+",
+							 "javax/.+",
+							 "org/xml/.+",
+							 "com/apple/.+",
+							 "com/sun/.+",
+							 "sun/.+"));
 
 	if (args != null) {
 
@@ -96,6 +90,16 @@ public class HeapInstrumenter extends HeapAudit implements ClassFileTransformer 
 		    String value = (arg.length() > 2) ? arg.substring(2) : null;
 
 		    switch (option) {
+
+		    case 'O':
+
+			if (value.equals("dynamic")) {
+
+			    HeapSettings.dynamic = (prefix == '+');
+
+			}
+
+			break;
 
 		    case 'C':
 
@@ -112,7 +116,7 @@ public class HeapInstrumenter extends HeapAudit implements ClassFileTransformer 
 			    }
 			    else {
 
-				(option == 'C' ? classesToAvoid : methodsToAvoid).add(value);
+				(option == 'C' ? HeapSettings.classesToAvoid : HeapSettings.methodsToAvoid).add(value);
 
 			    }
 
@@ -127,7 +131,7 @@ public class HeapInstrumenter extends HeapAudit implements ClassFileTransformer 
 			    }
 			    else {
 
-				(option == 'C' ? classesToTrace : methodsToTrace).add(value);
+				(option == 'C' ? HeapSettings.classesToTrace : HeapSettings.methodsToTrace).add(value);
 
 			    }
 
@@ -142,9 +146,9 @@ public class HeapInstrumenter extends HeapAudit implements ClassFileTransformer 
 			    }
 			    else {
 
-				(option == 'C' ? classesToDebug : methodsToDebug).add(value);
+				(option == 'C' ? HeapSettings.classesToDebug : HeapSettings.methodsToDebug).add(value);
 
-				(option == 'C' ? classesToTrace : methodsToTrace).add(value);
+				(option == 'C' ? HeapSettings.classesToTrace : HeapSettings.methodsToTrace).add(value);
 
 			    }
 
@@ -206,13 +210,9 @@ public class HeapInstrumenter extends HeapAudit implements ClassFileTransformer 
 			    ProtectionDomain protectionDomain,
 			    byte[] classfileBuffer) {
 
-	for (String regex: classesToAvoid) {
+	if (HeapSettings.avoidClass(className)) {
 
-	    if (className.matches(regex)) {
-
-		return null;
-
-	    }
+	    return null;
 
 	}
 

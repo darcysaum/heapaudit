@@ -16,25 +16,9 @@ public class HeapClass extends HeapAudit implements ClassVisitor {
 
 	this.className = className;
 
-	for (String regex: HeapInstrumenter.classesToDebug) {
+	this.debug = HeapSettings.debugClass(className);
 
-	    if (className.matches(regex)) {
-
-		this.debug = true;
-
-	    }
-
-	}
-
-	for (String regex: HeapInstrumenter.classesToTrace) {
-
-	    if (className.matches(regex)) {
-
-		this.trace = true;
-
-	    }
-
-	}
+	this.trace = HeapSettings.traceClass(className);
 
 	instrumentation(trace,
 			"\tCLASS " + className);
@@ -45,9 +29,9 @@ public class HeapClass extends HeapAudit implements ClassVisitor {
 
     private final String className;
 
-    private boolean debug = false;
+    private final boolean debug;
 
-    private boolean trace = false;
+    private final boolean trace;
 
     public void visit(int version,
 		      int access,
@@ -155,55 +139,19 @@ public class HeapClass extends HeapAudit implements ClassVisitor {
 
 	String method = className + "." + name + desc;
 
-        for (String regex: HeapInstrumenter.methodsToAvoid) {
+	if (HeapSettings.avoidMethod(method)) {
 
-            if (method.matches(regex)) {
-
-		return cv.visitMethod(access,
-				      name,
-				      desc,
-				      signature,
-				      exceptions);
-
-            }
+	    return cv.visitMethod(access,
+				  name,
+				  desc,
+				  signature,
+				  exceptions);
 
         }
 
-	boolean debug = this.debug;
+	boolean debug = this.debug || HeapSettings.debugMethod(method);
 
-	if (!debug) {
-
-	    for (String regex: HeapInstrumenter.methodsToDebug) {
-
-		if (method.matches(regex)) {
-
-		    debug = true;
-
-		    break;
-
-		}
-
-	    }
-
-	}
-
-	boolean trace = this.trace;
-
-	if (!trace) {
-
-	    for (String regex: HeapInstrumenter.methodsToTrace) {
-
-		if (method.matches(regex)) {
-
-		    trace = true;
-
-		    break;
-
-		}
-
-	    }
-
-	}
+	boolean trace = this.trace || HeapSettings.traceMethod(method);
 
 	HeapMethod mv = new HeapMethod(cv.visitMethod(access,
 						      name,

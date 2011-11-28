@@ -483,11 +483,11 @@ public class HeapMethod extends HeapAudit implements MethodVisitor {
 			      Label label) {
 
 	instrumentation(debug,
-			"visitJumpInsn(" + label + ")");
+			"visitJumpInsn(" + opcode + ", " + label + ")");
 
 	execution(trace,
 		  mv,
-		  "visitJumpInsn(" + label + ")");
+		  "visitJumpInsn(" + opcode + ", " + label + ")");
 
         mv.visitJumpInsn(opcode,
 			 label);

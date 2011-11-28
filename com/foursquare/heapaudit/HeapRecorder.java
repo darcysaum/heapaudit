@@ -34,6 +34,12 @@ public abstract class HeapRecorder {
 
     };
 
+    public static boolean hasRecorders() {
+
+	return (localRecorders.get().size() > 0) || (globalRecorders.size() > 0);
+
+    }
+
     public static ArrayList<HeapRecorder> getRecorders() {
 
 	ArrayList<HeapRecorder> recorders = new ArrayList<HeapRecorder>(globalRecorders);
