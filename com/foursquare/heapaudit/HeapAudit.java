@@ -168,11 +168,19 @@ public abstract class HeapAudit {
                               String type,
                               long size) {
 
-        for (HeapRecorder recorder: HeapRecorder.getRecorders()) {
+	try {
 
-	    recorder.record(type,
-			    count,
-			    size);
+	    for (HeapRecorder recorder: HeapRecorder.getRecorders()) {
+
+		recorder.record(type,
+				count,
+				size);
+
+	    }
+
+	} catch (Exception e) {
+
+	    System.err.println(e);
 
 	}
 
