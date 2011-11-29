@@ -122,9 +122,63 @@ public abstract class HeapAudit {
 
 		if (type.charAt(i) == '[') {
 
-		    o = (Object[])(o[0]);
+		    switch (type.charAt(i + 1)) {
 
-		    count *= o.length;
+		    case 'Z':
+
+			count *= ((boolean[])o[0]).length;
+
+			break;
+
+		    case 'B':
+
+			count *= ((byte[])o[0]).length;
+
+			break;
+
+		    case 'C':
+
+			count *= ((char[])o[0]).length;
+
+			break;
+
+		    case 'S':
+
+			count *= ((short[])o[0]).length;
+
+			break;
+
+		    case 'I':
+
+			count *= ((int[])o[0]).length;
+
+			break;
+
+		    case 'J':
+
+			count *= ((long[])o[0]).length;
+
+			break;
+
+		    case 'F':
+
+			count *= ((float[])o[0]).length;
+
+			break;
+
+		    case 'D':
+
+			count *= ((double[])o[0]).length;
+
+			break;
+
+		    default:
+
+			o = (Object[])(o[0]);
+
+			count *= o.length;
+
+		    }
 
                 }
                 else {
