@@ -334,7 +334,8 @@ public class HeapQuantile extends HeapRecorder {
     // The following tallies the quantile statistics across all threads.
     // NOTE: Partial records due to in-flight allocations may occur.
 
-    public ArrayList<Stats> tally(boolean global) {
+    public ArrayList<Stats> tally(boolean global,
+				  boolean sorted) {
 
         Quantiles qType = new Quantiles();
 
@@ -375,7 +376,11 @@ public class HeapQuantile extends HeapRecorder {
 	flatten(sQuantiles,
 		qArray);
 
-	Collections.sort(sQuantiles);
+	if (sorted) {
+
+	    Collections.sort(sQuantiles);
+
+	}
 
 	return sQuantiles;
 
@@ -385,7 +390,7 @@ public class HeapQuantile extends HeapRecorder {
 
 	String summary = "HEAP============\n";
 
-	for (Stats s: tally(global)) {
+	for (Stats s: tally(global, true)) {
 
 	    summary += s.toString() + "\n";
 

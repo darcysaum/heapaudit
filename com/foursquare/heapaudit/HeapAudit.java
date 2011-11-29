@@ -1,6 +1,6 @@
 package com.foursquare.heapaudit;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -45,7 +45,7 @@ public abstract class HeapAudit {
 
     // The following holds a cache of type to size mappings.
 
-    private static HashMap<String, Long> sizes = new HashMap<String, Long>();
+    private static ConcurrentHashMap<String, Long> sizes = new ConcurrentHashMap<String, Long>();
 
     private static long sizeOf(Object obj,
                                String type) {
