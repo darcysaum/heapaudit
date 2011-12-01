@@ -72,6 +72,7 @@ public class HeapInstrumenter extends HeapAudit implements ClassFileTransformer 
 							 "[$].*",
 							 "java/.+",
 							 "javax/.+",
+							 "org/jcp/.+",
 							 "org/xml/.+",
 							 "com/apple/.+",
 							 "com/sun/.+",

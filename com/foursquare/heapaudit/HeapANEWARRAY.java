@@ -47,13 +47,8 @@ class HeapANEWARRAY extends HeapAudit {
 	if (HeapSettings.dynamic) {
 
 	    // STACK: [...|count|obj]
-	    mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			       "com/foursquare/heapaudit/HeapRecorder",
-			       "hasRecorders",
-			       "()Z");
-	    // STACK: [...|count|obj|status]
-	    mv.visitJumpInsn(Opcodes.IFEQ,
-			     cleanup);
+	    visitCheck(mv,
+		       cleanup);
 	    // STACK: [...|count|obj]
 
 	}
@@ -75,17 +70,16 @@ class HeapANEWARRAY extends HeapAudit {
 
 	if (HeapSettings.dynamic) {
 
-	    // STACK: [...|obj]
-	    mv.visitJumpInsn(Opcodes.GOTO,
-			     finish);
-	    // STACK: [...|count|obj]
-	    mv.visitLabel(cleanup);
+	    visitCleanup(mv,
+			 cleanup,
+			 finish);
 	    // STACK: [...|count|obj]
 	    mv.visitInsn(Opcodes.SWAP);
 	    // STACK: [...|obj|count]
 	    mv.visitInsn(Opcodes.POP);
 	    // STACK: [...|obj]
-	    mv.visitLabel(finish);
+	    visitFinish(mv,
+			finish);
 	    // STACK: [...|obj]
 
 	}

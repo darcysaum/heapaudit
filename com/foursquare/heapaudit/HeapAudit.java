@@ -1,6 +1,7 @@
 package com.foursquare.heapaudit;
 
 import java.util.concurrent.ConcurrentHashMap;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -40,6 +41,43 @@ public abstract class HeapAudit {
 	    // STACK [...]
 
 	}
+
+    }
+
+    protected static void visitCheck(MethodVisitor mv,
+				     Label cleanup) {
+
+	// STACK: [...]
+	mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+			   "com/foursquare/heapaudit/HeapRecorder",
+			   "hasRecorders",
+			   "()Z");
+	// STACK: [...|status]
+	mv.visitJumpInsn(Opcodes.IFEQ,
+			 cleanup);
+	// STACK: [...]
+
+    }
+
+    protected static void visitCleanup(MethodVisitor mv,
+				       Label cleanup,
+				       Label finish) {
+
+	// STACK: [...]
+	mv.visitJumpInsn(Opcodes.GOTO,
+			 finish);
+	// STACK: [...]
+	mv.visitLabel(cleanup);
+	// STACK: [...]
+
+    }
+
+    protected static void visitFinish(MethodVisitor mv,
+				      Label finish) {
+
+	// STACK: [...]
+	mv.visitLabel(finish);
+	// STACK: [...]
 
     }
 

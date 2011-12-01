@@ -50,13 +50,8 @@ class HeapNEWINSTANCE extends HeapAudit {
 	if (HeapSettings.dynamic) {
 
 	    // STACK: [...|count|class|obj]
-	    mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			       "com/foursquare/heapaudit/HeapRecorder",
-			       "hasRecorders",
-			       "()Z");
-	    // STACK: [...|count|class|obj|status]
-	    mv.visitJumpInsn(Opcodes.IFEQ,
-			     cleanup);
+	    visitCheck(mv,
+		       cleanup);
 	    // STACK: [...|count|class|obj]
 
 	}
@@ -83,11 +78,9 @@ class HeapNEWINSTANCE extends HeapAudit {
 
 	if (HeapSettings.dynamic) {
 
-	    // STACK: [...|obj]
-	    mv.visitJumpInsn(Opcodes.GOTO,
-			     finish);
-	    // STACK: [...|count|class|obj]
-	    mv.visitLabel(cleanup);
+	    visitCleanup(mv,
+			 cleanup,
+			 finish);
 	    // STACK: [...|count|class|obj]
 	    mv.visitInsn(Opcodes.SWAP);
 	    // STACK: [...|count|obj|class]
@@ -97,7 +90,8 @@ class HeapNEWINSTANCE extends HeapAudit {
 	    // STACK: [...|obj|count]
 	    mv.visitInsn(Opcodes.POP);
 	    // STACK: [...|obj]
-	    mv.visitLabel(finish);
+	    visitFinish(mv,
+			finish);
 	    // STACK: [...|obj]
 
 	}
@@ -143,13 +137,8 @@ class HeapNEWINSTANCE extends HeapAudit {
 	if (HeapSettings.dynamic) {
 
 	    // STACK: [...|count|class|obj]
-	    mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			       "com/foursquare/heapaudit/HeapRecorder",
-			       "hasRecorders",
-			       "()Z");
-	    // STACK: [...|count|class|obj|status]
-	    mv.visitJumpInsn(Opcodes.IFEQ,
-			     cleanup);
+	    visitCheck(mv,
+		       cleanup);
 	    // STACK: [...|count|class|obj]
 
 	}
@@ -174,11 +163,9 @@ class HeapNEWINSTANCE extends HeapAudit {
 
 	if (HeapSettings.dynamic) {
 
-	    // STACK: [...|obj]
-	    mv.visitJumpInsn(Opcodes.GOTO,
-			     finish);
-	    // STACK: [...|count|class|obj]
-	    mv.visitLabel(cleanup);
+	    visitCleanup(mv,
+			 cleanup,
+			 finish);
 	    // STACK: [...|count|class|obj]
 	    mv.visitInsn(Opcodes.SWAP);
 	    // STACK: [...|count|obj|class]
@@ -188,7 +175,8 @@ class HeapNEWINSTANCE extends HeapAudit {
 	    // STACK: [...|obj|count]
 	    mv.visitInsn(Opcodes.POP);
 	    // STACK: [...|obj]
-	    mv.visitLabel(finish);
+	    visitFinish(mv,
+			finish);
 	    // STACK: [...|obj]
 
 	}

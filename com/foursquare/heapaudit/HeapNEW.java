@@ -91,13 +91,8 @@ class HeapNEW extends HeapAudit {
 	if (HeapSettings.dynamic) {
 
 	    // STACK: [...|obj]
-	    mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			       "com/foursquare/heapaudit/HeapRecorder",
-			       "hasRecorders",
-			       "()Z");
-	    // STACK: [...|obj|status]
-	    mv.visitJumpInsn(Opcodes.IFEQ,
-			     cleanup);
+	    visitCheck(mv,
+		       cleanup);
 	    // STACK: [...|obj]
 
 	}
@@ -117,15 +112,14 @@ class HeapNEW extends HeapAudit {
 
 	if (HeapSettings.dynamic) {
 
-	    // STACK: [...]
-	    mv.visitJumpInsn(Opcodes.GOTO,
-			     finish);
-	    // STACK: [...|obj]
-	    mv.visitLabel(cleanup);
+	    visitCleanup(mv,
+			 cleanup,
+			 finish);
 	    // STACK: [...|obj]
 	    mv.visitInsn(Opcodes.POP);
 	    // STACK: [...]
-	    mv.visitLabel(finish);
+	    visitFinish(mv,
+			finish);
 	    // STACK: [...]
 
 	}

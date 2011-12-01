@@ -28,13 +28,8 @@ class HeapCLONEOBJECT extends HeapAudit {
 	if (HeapSettings.dynamic) {
 
 	    // STACK: [...|obj]
-	    mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			       "com/foursquare/heapaudit/HeapRecorder",
-			       "hasRecorders",
-			       "()Z");
-	    // STACK: [...|obj|status]
-	    mv.visitJumpInsn(Opcodes.IFEQ,
-			     finish);
+	    visitCheck(mv,
+		       finish);
 	    // STACK: [...|obj]
 
 	}
@@ -69,7 +64,8 @@ class HeapCLONEOBJECT extends HeapAudit {
 	if (HeapSettings.dynamic) {
 
 	    // STACK: [...|obj]
-	    mv.visitLabel(finish);
+	    visitFinish(mv,
+			finish);
 	    // STACK: [...|obj]
 
 	}
