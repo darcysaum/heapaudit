@@ -3,14 +3,26 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <groupId>com.foursquare</groupId>
   <artifactId>heapaudit</artifactId>
-  <version>1.0</version>
+  <version>1.0.0</version>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestFile>src/main/resources/META-INF/MANIFEST.MF</manifestFile>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
   <dependencies>
     <dependency>
-      <groupId>org.objectweb</groupId>
-      <artifactId>asm</artifactId>
+      <groupId>asm</groupId>
+      <artifactId>asm-all</artifactId>
       <version>3.3.1</version>
     </dependency>
     <dependency>
@@ -21,5 +33,5 @@
       <scope>test</scope>
       <optional>true</optional>
     </dependency>
-  </depdendencies>
+  </dependencies>
 </project>
