@@ -4,7 +4,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.Opcodes;
 
-class HeapCLONEOBJECT extends HeapAudit {
+class HeapCLONEOBJECT extends HeapUtil {
 
     // Allocations by java/lang/reflect/Constructor/newInstance
     // ([Ljava/lang/Object;)Ljava/lang/Object; or by java/lang/Object/clone
@@ -56,7 +56,7 @@ class HeapCLONEOBJECT extends HeapAudit {
 	mv.visitLdcInsn((long)-1);
 	// STACK: [...|obj|obj|count|type|size]
 	mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			   "com/foursquare/heapaudit/HeapAudit",
+			   "com/foursquare/heapaudit/HeapUtil",
 			   "record",
 			   "(Ljava/lang/Object;ILjava/lang/String;J)V");
 	// STACK: [...|obj]

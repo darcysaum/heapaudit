@@ -6,7 +6,7 @@ import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public abstract class HeapAudit {
+public abstract class HeapUtil {
 
     public static void log(String text) {
 
@@ -35,7 +35,7 @@ public abstract class HeapAudit {
 	    mv.visitLdcInsn(text);
 	    // STACK [...|text]
 	    mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			       "com/foursquare/heapaudit/HeapAudit",
+			       "com/foursquare/heapaudit/HeapUtil",
 			       "log",
 			       "(Ljava/lang/String;)V");
 	    // STACK [...]

@@ -4,7 +4,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.Opcodes;
 
-class HeapANEWARRAY extends HeapAudit {
+class HeapANEWARRAY extends HeapUtil {
 
     // Allocations by ANEWARRAY are triggered via calls to visitTypeInsn where
     // the top of the stack contains the number of elements in the array and
@@ -63,7 +63,7 @@ class HeapANEWARRAY extends HeapAudit {
         mv.visitLdcInsn((long)-1);
         // STACK: [...|obj|obj|count|type|size]
         mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-                           "com/foursquare/heapaudit/HeapAudit",
+                           "com/foursquare/heapaudit/HeapUtil",
                            "record",
                            "(Ljava/lang/Object;ILjava/lang/String;J)V");
         // STACK: [...|obj]

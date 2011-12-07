@@ -7,7 +7,7 @@ import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-public class HeapMethod extends HeapAudit implements MethodVisitor {
+public class HeapMethod extends HeapUtil implements MethodVisitor {
 
     public HeapMethod(MethodVisitor mv,
 		      String className,

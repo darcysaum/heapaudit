@@ -4,7 +4,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.Opcodes;
 
-class HeapMULTIARRAY extends HeapAudit {
+class HeapMULTIARRAY extends HeapUtil {
 
     // Allocations by MULTIARRAY are triggered via calls to
     // visitMultiANewArrayInsn where it returns a reference to the newly
@@ -39,7 +39,7 @@ class HeapMULTIARRAY extends HeapAudit {
         mv.visitLdcInsn(desc);
         // STACK: [...|obj|obj|type]
         mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			   "com/foursquare/heapaudit/HeapAudit",
+			   "com/foursquare/heapaudit/HeapUtil",
 			   "record",
 			   "(Ljava/lang/Object;Ljava/lang/String;)V");
 	// STACK: [...|obj]

@@ -4,7 +4,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.Opcodes;
 
-class HeapNEWINSTANCE extends HeapAudit {
+class HeapNEWINSTANCE extends HeapUtil {
 
     // Allocations by java/lang/Class/newInstance()Ljava/lang/Object; are
     // triggered via calls to visitMethodInsn(INVOKEVIRTUAL) where the top of
@@ -71,7 +71,7 @@ class HeapNEWINSTANCE extends HeapAudit {
         mv.visitLdcInsn((long)-1);
         // STACK: [...|obj|obj|count|type|size]
         mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-                           "com/foursquare/heapaudit/HeapAudit",
+                           "com/foursquare/heapaudit/HeapUtil",
                            "record",
                            "(Ljava/lang/Object;ILjava/lang/String;J)V");
 	// STACK: [...|obj]
@@ -156,7 +156,7 @@ class HeapNEWINSTANCE extends HeapAudit {
                            "()Ljava/lang/String;");
         // STACK: [...|obj|obj|count|type]
         mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-                           "com/foursquare/heapaudit/HeapAudit",
+                           "com/foursquare/heapaudit/HeapUtil",
                            "record",
                            "(Ljava/lang/Object;[ILjava/lang/String;)V");
 	// STACK: [...|obj]

@@ -7,7 +7,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.LocalVariablesSorter;
 
-class HeapNEW extends HeapAudit {
+class HeapNEW extends HeapUtil {
 
     // Allocations by NEW are triggered via calls to both visitTypeInsn and
     // visitMethodInsn(INVOKESPECIAL) where the top of the stack after the first
@@ -105,7 +105,7 @@ class HeapNEW extends HeapAudit {
         mv.visitLdcInsn((long)-1);
         // STACK: [...|obj|count|type|size]
         mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			   "com/foursquare/heapaudit/HeapAudit",
+			   "com/foursquare/heapaudit/HeapUtil",
 			   "record",
 			   "(Ljava/lang/Object;ILjava/lang/String;J)V");
 	// STACK: [...]
