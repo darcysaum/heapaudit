@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.foursquare</groupId>
   <artifactId>heapaudit</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <build>
     <plugins>
       <plugin>
@@ -16,6 +16,26 @@
             <manifestFile>src/main/resources/META-INF/MANIFEST.MF</manifestFile>
           </archive>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>1.2.2</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <artifactSet>
+                <excludes>
+                  <exclude>junit:junit</exclude>
+                </excludes>
+              </artifactSet>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
