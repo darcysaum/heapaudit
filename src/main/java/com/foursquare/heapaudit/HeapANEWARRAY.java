@@ -44,7 +44,7 @@ class HeapANEWARRAY extends HeapAudit {
 
 	Label finish = new Label();
 
-	if (HeapSettings.dynamic) {
+	if (HeapSettings.conditional) {
 
 	    // STACK: [...|count|obj]
 	    visitCheck(mv,
@@ -68,7 +68,7 @@ class HeapANEWARRAY extends HeapAudit {
                            "(Ljava/lang/Object;ILjava/lang/String;J)V");
         // STACK: [...|obj]
 
-	if (HeapSettings.dynamic) {
+	if (HeapSettings.conditional) {
 
 	    visitCleanup(mv,
 			 cleanup,

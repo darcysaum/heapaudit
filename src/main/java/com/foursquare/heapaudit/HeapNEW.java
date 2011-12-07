@@ -88,7 +88,7 @@ class HeapNEW extends HeapAudit {
 
 	Label finish = new Label();
 
-	if (HeapSettings.dynamic) {
+	if (HeapSettings.conditional) {
 
 	    // STACK: [...|obj]
 	    visitCheck(mv,
@@ -110,7 +110,7 @@ class HeapNEW extends HeapAudit {
 			   "(Ljava/lang/Object;ILjava/lang/String;J)V");
 	// STACK: [...]
 
-	if (HeapSettings.dynamic) {
+	if (HeapSettings.conditional) {
 
 	    visitCleanup(mv,
 			 cleanup,

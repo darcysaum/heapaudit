@@ -25,7 +25,7 @@ class HeapCLONEOBJECT extends HeapAudit {
 
 	Label finish = new Label();
 
-	if (HeapSettings.dynamic) {
+	if (HeapSettings.conditional) {
 
 	    // STACK: [...|obj]
 	    visitCheck(mv,
@@ -61,7 +61,7 @@ class HeapCLONEOBJECT extends HeapAudit {
 			   "(Ljava/lang/Object;ILjava/lang/String;J)V");
 	// STACK: [...|obj]
 
-	if (HeapSettings.dynamic) {
+	if (HeapSettings.conditional) {
 
 	    // STACK: [...|obj]
 	    visitFinish(mv,

@@ -24,7 +24,7 @@ class HeapCLONEARRAY extends HeapAudit {
 
 	Label finish = new Label();
 
-	if (HeapSettings.dynamic) {
+	if (HeapSettings.conditional) {
 
 	    // STACK: [...|obj]
 	    visitCheck(mv,
@@ -71,7 +71,7 @@ class HeapCLONEARRAY extends HeapAudit {
 
 	}
 
-	if (HeapSettings.dynamic) {
+	if (HeapSettings.conditional) {
 
 	    // STACK: [...|obj]
 	    visitFinish(mv,
