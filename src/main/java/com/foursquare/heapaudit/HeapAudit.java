@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 
-public class HeapInstrumenter extends HeapUtil implements ClassFileTransformer {
+public class HeapAudit extends HeapUtil implements ClassFileTransformer {
 
     static {
 	/*
@@ -34,11 +34,11 @@ public class HeapInstrumenter extends HeapUtil implements ClassFileTransformer {
 
 	HeapRecorder.instrumentation = instrumentation;
 
-	instrumentation.addTransformer(new HeapInstrumenter(),
+	instrumentation.addTransformer(new HeapAudit(),
 				       true);
 
 	if (instrumentation.isRetransformClassesSupported() &&
-	    (HeapInstrumenter.class.getClassLoader() == null)) {
+	    (HeapAudit.class.getClassLoader() == null)) {
 
 	    ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
 
