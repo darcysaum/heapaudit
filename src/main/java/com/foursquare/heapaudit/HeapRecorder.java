@@ -11,7 +11,45 @@ public abstract class HeapRecorder {
 
     protected static String friendly(String type) {
 
-	return type.replaceAll("^\\[*L", "").replaceAll(";$", "");
+	switch (type.charAt(0)) {
+
+	case 'Z':
+
+	    return "boolean";
+
+	case 'B':
+
+	    return "byte";
+
+	case 'C':
+
+	    return "char";
+
+	case 'S':
+
+	    return "short";
+
+	case 'I':
+
+	    return "int";
+
+	case 'J':
+
+	    return "long";
+
+	case 'F':
+
+	    return "float";
+
+	case 'D':
+
+	    return "double";
+
+	default:
+
+	    return type.replaceAll("^\\[*L", "").replaceAll(";$", "").replaceAll("/", ".");
+
+	}
 
     }
 

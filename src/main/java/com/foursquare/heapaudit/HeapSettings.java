@@ -46,7 +46,7 @@ class HeapSettings {
 
 	classesToAvoid.addAll(Arrays.asList("java/lang/ThreadLocal",
 					    "org/objectweb/asm/.+",
-					    "com/foursquare/heapaudit/.+",
+					    "com/foursquare/heapaudit/(?!test/).+",
 					    "[$].*",
 					    "java/.+",
 					    "javax/.+",

@@ -93,14 +93,14 @@ class HeapNEWARRAY extends HeapUtil {
 	"INVALID1",
 	"INVALID2",
 	"INVALID3",
-	"boolean",
-	"char",
-	"float",
-	"double",
-	"byte",
-	"short",
-	"int",
-	"long"
+	"Z",
+	"C",
+	"F",
+	"D",
+	"B",
+	"S",
+	"I",
+	"J"
     };
 
 }
