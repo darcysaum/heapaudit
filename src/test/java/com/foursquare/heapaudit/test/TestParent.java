@@ -2,18 +2,12 @@ package com.foursquare.heapaudit.test;
 
 public class TestParent {
 
-    public TestParent() {
-
-	this('P');
-
-    }
-
-    public TestParent(char rank) {
+    public TestParent(int rank) {
 
 	this.rank = rank;
 
     }
 
-    public char rank;
+    public int rank;
 
 }

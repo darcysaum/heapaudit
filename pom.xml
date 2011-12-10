@@ -43,7 +43,6 @@
         <configuration>
           <argLine>-javaagent:${basedir}/target/${artifactId}-${version}.jar="-Corg/apache/maven/.+ -Cjunit/.+ -Corg/junit/.+"</argLine>
           <workingDirectory>${basedir}/target</workingDirectory>
-          <forkmode>perTest</forkmode>
         </configuration>
       </plugin>
     </plugins>

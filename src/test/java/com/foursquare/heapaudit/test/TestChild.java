@@ -4,7 +4,7 @@ public class TestChild extends TestParent implements Cloneable {
 
     public TestChild() {
 
-	super('C');
+	super(9);
 
     }
 
