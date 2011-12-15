@@ -386,17 +386,18 @@ public class HeapQuantile extends HeapRecorder {
 
     }
 
-    public String summarize(boolean global) {
+    public String summarize(boolean global,
+			    String comments) {
 
-	String summary = "HEAP============\n";
+	String summary = (comments == null) ? "HEAP============" : "HEAP: " + comments;
 
 	for (Stats s: tally(global, true)) {
 
-	    summary += s.toString() + "\n";
+	    summary += "\n" + s.toString();
 
 	}
 
-	return summary + "----------------\n";
+	return summary;
 
     }
 

@@ -10,40 +10,51 @@ import org.objectweb.asm.Opcodes;
 public class HeapMethod extends HeapUtil implements MethodVisitor {
 
     public HeapMethod(MethodVisitor mv,
-		      String className,
-		      String methodName,
-		      String signature,
+		      String methodId,
 		      boolean debug,
-		      boolean trace) {
+		      boolean trace,
+		      boolean injectRecorder,
+		      boolean removeRecorder) {
 
 	this.mv = new MethodAdapter(mv);
 
-	this.className = className;
-
-	this.methodName = methodName;
-
-	this.signature = signature;
+	this.id = methodId;
 
 	this.debug = debug;
 
 	this.trace = trace;
 
+	this.injectRecorder = injectRecorder;
+
+	this.removeRecorder = removeRecorder;
+
+	if (removeRecorder) {
+
+	    HeapUtil.remove(id);
+
+	}
+	else if (injectRecorder) {
+
+	    HeapUtil.inject(id);
+
+	}
+
 	instrumentation(debug,
-			"\tMETHOD " + className + "." + methodName + signature + (trace ? " TRACED" : " NOT TRACED"));
+			"\tMETHOD " + id);
 
     }
 
     public final MethodAdapter mv;
 
-    private final String className;
-
-    private final String methodName;
-
-    private final String signature;
+    private final String id;
 
     private final boolean debug;
 
     private final boolean trace;
+
+    private final boolean injectRecorder;
+
+    private final boolean removeRecorder;
 
     public HeapVariables lvs = null;
 
@@ -99,6 +110,8 @@ public class HeapMethod extends HeapUtil implements MethodVisitor {
 		  mv,
 		  "visitCode()");
 
+	visitEnter();
+
     }
 
     public void visitFrame(int type,
@@ -130,6 +143,26 @@ public class HeapMethod extends HeapUtil implements MethodVisitor {
 	execution(trace,
 		  mv,
 		  "visitInsn(" + opcode + ")");
+
+	switch (opcode) {
+
+	case Opcodes.ARETURN:
+
+	case Opcodes.DRETURN:
+
+	case Opcodes.FRETURN:
+
+	case Opcodes.IRETURN:
+
+	case Opcodes.LRETURN:
+
+	case Opcodes.RETURN:
+
+	    visitReturn();
+
+	    break;
+
+	}
 
 	mv.visitInsn(opcode);
 
@@ -172,6 +205,16 @@ public class HeapMethod extends HeapUtil implements MethodVisitor {
 	execution(trace,
 		  mv,
 		  "visitVarInsn(" + opcode + ", " + var + ")");
+
+	switch (opcode) {
+
+	case Opcodes.RET:
+
+	    visitReturn();
+
+	    break;
+
+	}
 
 	mv.visitVarInsn(opcode,
 			var);
@@ -335,6 +378,15 @@ public class HeapMethod extends HeapUtil implements MethodVisitor {
 		HeapNEWINSTANCE.beforeX(debug,
 					trace,
 					mv);
+
+	    }
+	    else if (removeRecorder &&
+		     owner.equals("com/foursquare/heapaudit/HeapUtil") &&
+		     name.endsWith("register")) {
+
+		mv.visitInsn(Opcodes.POP);
+
+		return;
 
 	    }
 
@@ -614,7 +666,7 @@ public class HeapMethod extends HeapUtil implements MethodVisitor {
 	lvs.declare();
 
 	mv.visitMaxs(maxStack,
-			maxLocals);
+		     maxLocals);
 
     }
 
@@ -628,6 +680,36 @@ public class HeapMethod extends HeapUtil implements MethodVisitor {
 		  "visitEnd()");
 
 	mv.visitEnd();
+
+    }
+
+    private void visitEnter() {
+
+	if (injectRecorder) {
+
+	    mv.visitLdcInsn(id);
+
+	    mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+			       "com/foursquare/heapaudit/HeapUtil",
+			       "register",
+			       "(Ljava/lang/String;)V");
+
+	}
+
+    }
+
+    private void visitReturn() {
+
+	if (injectRecorder) {
+
+	    mv.visitLdcInsn(id);
+
+	    mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+			       "com/foursquare/heapaudit/HeapUtil",
+			       "unregister",
+			       "(Ljava/lang/String;)V");
+
+	}
 
     }
 

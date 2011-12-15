@@ -5,7 +5,8 @@ import java.util.Arrays;
 
 class HeapSettings {
 
-    public static void parse(String args) {
+    public static void parse(String args,
+			     boolean dynamic) {
 
 	// When the HeapAudit agent is loaded, all classes except the ones below
 	// are candidates for instrumentation. To avoid additional classes from
@@ -43,6 +44,34 @@ class HeapSettings {
 	//     * conditional - To enable/disable the conditional setting. This
 	//                     may be enabled if the majority of the time zero
 	//                     recorders are registered. Enabled by default.
+	// When launched in dynamic mode, specify an arbitrary number of
+	// +R<method_regex> or -R<method_regex> where <method_regex> is used to
+	// match the fully qualified method name and signature to enable or
+	// disable injected recorders.
+	//     * To dynamically inject recorders for all toString methods in
+	//       com/foursquare/foo
+	//           +Rcom/foursquare/foo/toString.+
+	//     * To dynamically remove recorders for all toString methods in
+	//       com/foursquare/foo and dump heap allocations to stdout
+	//           -Rcom/foursquare/foo/toString.+
+
+	HeapSettings.dynamic = dynamic;
+
+	classesToAvoid.clear();
+
+	classesToDebug.clear();
+
+	classesToTrace.clear();
+
+	methodsToAvoid.clear();
+
+	methodsToDebug.clear();
+
+	methodsToTrace.clear();
+
+	methodsToInjectRecorder.clear();
+
+	methodsToRemoveRecorder.clear();
 
 	classesToAvoid.addAll(Arrays.asList("java/lang/ThreadLocal",
 					    "org/objectweb/asm/.+",
@@ -84,6 +113,8 @@ class HeapSettings {
 
 		    case 'M':
 
+		    case 'R':
+
 			switch (prefix) {
 
 			case '-':
@@ -95,7 +126,27 @@ class HeapSettings {
 			    }
 			    else {
 
-				(option == 'C' ? classesToAvoid : methodsToAvoid).add(value);
+				switch (option) {
+
+				case 'C':
+
+				    classesToAvoid.add(value);
+
+				    break;
+
+				case 'M':
+
+				    methodsToAvoid.add(value);
+
+				    break;
+
+				case 'R':
+
+				    methodsToRemoveRecorder.add(value);
+
+				    break;
+
+				}
 
 			    }
 
@@ -110,7 +161,27 @@ class HeapSettings {
 			    }
 			    else {
 
-				(option == 'C' ? classesToTrace : methodsToTrace).add(value);
+				switch (option) {
+
+				case 'C':
+
+				    classesToTrace.add(value);
+
+				    break;
+
+				case 'M':
+
+				    methodsToTrace.add(value);
+
+				    break;
+
+				case 'R':
+
+				    methodsToInjectRecorder.add(value);
+
+				    break;
+
+				}
 
 			    }
 
@@ -125,9 +196,25 @@ class HeapSettings {
 			    }
 			    else {
 
-				(option == 'C' ? classesToDebug : methodsToDebug).add(value);
+				switch (option) {
 
-				(option == 'C' ? classesToTrace : methodsToTrace).add(value);
+				case 'C':
+
+				    classesToDebug.add(value);
+
+				    classesToTrace.add(value);
+
+				    break;
+
+				case 'M':
+
+				    methodsToDebug.add(value);
+
+				    methodsToTrace.add(value);
+
+				    break;
+
+				}
 
 			    }
 
@@ -155,6 +242,11 @@ class HeapSettings {
 
     }
 
+    // The dynamic flag indicates whether the HeapAudit java agent was loaded
+    // dynamically or statically.
+
+    public static boolean dynamic = false;
+
     // The conditional setting determines whether to optimize for tradeoffs by
     // adding extra bytecode instructions to check and potentially skip the code
     // paths for executing the recording logic. If HeapAudit is expected to
@@ -174,6 +266,10 @@ class HeapSettings {
     private final static ArrayList<String> methodsToDebug = new ArrayList<String>();
 
     private final static ArrayList<String> methodsToTrace = new ArrayList<String>();
+
+    private final static ArrayList<String> methodsToInjectRecorder = new ArrayList<String>();
+
+    private final static ArrayList<String> methodsToRemoveRecorder = new ArrayList<String>();
 
     private static boolean contains(ArrayList<String> list,
 				    String item) {
@@ -231,6 +327,22 @@ class HeapSettings {
 
 	return contains(methodsToTrace,
 			m);
+
+    }
+
+    public static boolean injectRecorder(String m) {
+
+	return dynamic &&
+	    contains(methodsToInjectRecorder,
+		     m);
+
+    }
+
+    public static boolean removeRecorder(String m) {
+
+	return dynamic &&
+	    contains(methodsToRemoveRecorder,
+		     m);
 
     }
 

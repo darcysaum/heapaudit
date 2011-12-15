@@ -10,24 +10,24 @@ import org.objectweb.asm.MethodVisitor;
 public class HeapClass extends HeapUtil implements ClassVisitor {
 
     public HeapClass(ClassVisitor cv,
-		     String className) {
+		     String classId) {
 
 	this.cv = new ClassAdapter(cv);
 
-	this.className = className;
+	this.id = classId;
 
-	this.debug = HeapSettings.debugClass(className);
+	this.debug = HeapSettings.debugClass(classId);
 
-	this.trace = HeapSettings.traceClass(className);
+	this.trace = HeapSettings.traceClass(classId);
 
 	instrumentation(trace,
-			"\tCLASS " + className);
+			"\tCLASS " + id);
 
     }
 
     private final ClassAdapter cv;
 
-    private final String className;
+    private final String id;
 
     private final boolean debug;
 
@@ -137,7 +137,7 @@ public class HeapClass extends HeapUtil implements ClassVisitor {
 	instrumentation(debug,
 			"visitMethod()");
 
-	String method = className + "." + name + desc;
+	String method = id + "." + name + desc;
 
 	if (HeapSettings.avoidMethod(method)) {
 
@@ -153,16 +153,20 @@ public class HeapClass extends HeapUtil implements ClassVisitor {
 
 	boolean trace = this.trace || HeapSettings.traceMethod(method);
 
+	boolean injectRecorder = HeapSettings.injectRecorder(method);
+
+	boolean removeRecorder = HeapSettings.removeRecorder(method);
+
 	HeapMethod mv = new HeapMethod(cv.visitMethod(access,
 						      name,
 						      desc,
 						      signature,
 						      exceptions),
-				       className,
-				       name,
-				       desc,
+				       method,
 				       debug,
-				       trace);
+				       trace,
+				       injectRecorder,
+				       removeRecorder);
 
 	// The following sets up the weird cyclic dependency whereby the
 	// HeapMethod implementation uses the HeapVariables class for injecting

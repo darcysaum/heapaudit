@@ -2,9 +2,13 @@
 
 HeapAudit is a java agent which audits heap allocations for JVM processes.
 
-HeapAudit requires a simple integration hook to be implemented by the java
+HeapAudit runs in two modes:
+
+- STATIC: This requires a simple integration hook to be implemented by the java
 process of interest. The callback hook defines how the allocations are recorded
 and the callback code is only executed when the java agent is loaded.
+- DYNAMIC: This injects HeapQuantile recorders to all matching methods and dumps
+heap allocations to stdout when removed.
 
 ## Building the HeapAudit java agent
 
@@ -50,9 +54,17 @@ recorder can be registered globally across all threads or local to the current.
 
 ## Launching the HeapAudit java agent
 
-Launch HeapAudit as a java agent at the java command line.
+Launch HeapAudit statically along with the process of interest (requires MyTest
+to implement the integration hook to register heap recorders).
 
 	$ java -javaagent:heapaudit.jar MyTest
+
+Launch HeapAudit dynamically by attaching to the process of interest (does not
+require MyTest to have any prior intrumentations).
+
+	$ java -jar heapaudit.jar 999 +Rcom/foursquare/test/MyTest.+
+
+	$ java -jar heapaudit.jar 999 -Rcom/foursquare/test/MyTest.+
 
 Additional options can be passed to HeapAudit to customize which classes and/or
 methods are not to be instrumented for recording allocations. For additional

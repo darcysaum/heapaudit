@@ -1,3 +1,7 @@
 Manifest-Version: 1.0
+Can-Redefine-Classes: true
+Can-Retransform-Classes: true
+Main-Class: com.foursquare.heapaudit.HeapAudit
+Agent-Class: com.foursquare.heapaudit.HeapAudit
 Premain-Class: com.foursquare.heapaudit.HeapAudit
 Created-By: 1.6.0_22 (Norbert Y. Hu)

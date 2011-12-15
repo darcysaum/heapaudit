@@ -1,5 +1,6 @@
 package com.foursquare.heapaudit;
 
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodAdapter;
@@ -275,6 +276,63 @@ public abstract class HeapUtil {
 	    System.err.println(e);
 
 	}
+
+    }
+
+    private final static HashMap<String, HeapQuantile> recorders = new HashMap<String, HeapQuantile>();
+
+    public static boolean inject(String id) {
+
+        if (!recorders.containsKey(id)) {
+
+            recorders.put(id,
+                          new HeapQuantile());
+
+            return true;
+
+        }
+
+        return false;
+
+    }
+
+    public static boolean remove(String id) {
+
+        HeapQuantile recorder = recorders.remove(id);
+
+        if (recorder != null) {
+
+            System.out.println(recorder.summarize(true, id));
+
+            return true;
+
+        }
+
+        return false;
+
+    }
+
+    public static void register(String id) {
+
+        HeapQuantile recorder = recorders.get(id);
+
+        if (recorder != null) {
+
+            HeapRecorder.register(recorder);
+
+        }
+
+    }
+
+    public static void unregister(String id) {
+
+        HeapQuantile recorder = recorders.get(id);
+
+        if (recorder != null) {
+
+            HeapRecorder.unregister(recorder);
+
+        }
 
     }
 

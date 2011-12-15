@@ -1,5 +1,10 @@
 package com.foursquare.heapaudit;
 
+import com.sun.tools.attach.AgentInitializationException;
+import com.sun.tools.attach.AgentLoadException;
+import com.sun.tools.attach.AttachNotSupportedException;
+import com.sun.tools.attach.VirtualMachine;
+import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
@@ -24,21 +29,70 @@ public class HeapAudit extends HeapUtil implements ClassFileTransformer {
 	*/
     }
 
+    public static void main(String[] args) throws AttachNotSupportedException, IOException, AgentLoadException, AgentInitializationException {
+
+	StringBuffer s = new StringBuffer(args.length > 1 ? args[1] : "");
+
+	for (int i = 2; i < args.length; ++i) {
+
+	    s.append(' ');
+
+	    s.append(args[i]);
+
+	}
+
+	load(args[0],
+	     s.toString());
+
+    }
+
+    public static void load(String pid,
+			    String args) throws AttachNotSupportedException, IOException, AgentLoadException, AgentInitializationException {
+
+	VirtualMachine vm = VirtualMachine.attach(pid);
+
+	vm.loadAgent(HeapAudit.class.getProtectionDomain().getCodeSource().getLocation().getPath(),
+		     args);
+
+	vm.detach();
+
+    }
+
+    public static void agentmain(String args,
+				 Instrumentation instrumentation) throws UnmodifiableClassException {
+
+	main(args,
+	     instrumentation,
+	     true);
+
+    }
+
     public static void premain(String args,
 			       Instrumentation instrumentation) throws UnmodifiableClassException {
 
+	main(args,
+	     instrumentation,
+	     false);
 
-        HeapSettings.parse(args);
+    }
+
+    private static void main(String args,
+			     Instrumentation instrumentation,
+			     boolean dynamic) throws UnmodifiableClassException {
+
+        HeapSettings.parse(args,
+			   dynamic);
         
         HeapRecorder.isAuditing = true;
 
 	HeapRecorder.instrumentation = instrumentation;
 
-	instrumentation.addTransformer(new HeapAudit(),
+	ClassFileTransformer transformer = new HeapAudit();
+
+	instrumentation.addTransformer(transformer,
 				       true);
 
-	if (instrumentation.isRetransformClassesSupported() &&
-	    (HeapAudit.class.getClassLoader() == null)) {
+	if (instrumentation.isRetransformClassesSupported()) {
 
 	    ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
 
@@ -53,6 +107,12 @@ public class HeapAudit extends HeapUtil implements ClassFileTransformer {
 	    }
 
 	    instrumentation.retransformClasses(classes.toArray(new Class<?>[classes.size()]));
+
+	}
+
+	if (dynamic) {
+
+	    instrumentation.removeTransformer(transformer);
 
 	}
 

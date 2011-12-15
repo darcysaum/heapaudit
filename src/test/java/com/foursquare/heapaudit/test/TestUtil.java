@@ -1,7 +1,7 @@
 package com.foursquare.heapaudit.test;
 
 import com.foursquare.heapaudit.HeapRecorder;
-import java.util.ArrayList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class TestUtil {
 
@@ -94,7 +94,7 @@ public class TestUtil {
 
 	}
 
-	private final ArrayList<Entry> entries = new ArrayList<Entry>();
+	private final ConcurrentLinkedQueue<Entry> entries = new ConcurrentLinkedQueue<Entry>();
 
     }
 
