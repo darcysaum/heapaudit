@@ -1,8 +1,5 @@
 package com.foursquare.heapaudit;
 
-import com.sun.tools.attach.AgentInitializationException;
-import com.sun.tools.attach.AgentLoadException;
-import com.sun.tools.attach.AttachNotSupportedException;
 import com.sun.tools.attach.VirtualMachine;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
@@ -29,7 +26,7 @@ public class HeapAudit extends HeapUtil implements ClassFileTransformer {
 	*/
     }
 
-    public static void main(String[] args) throws AttachNotSupportedException, IOException, AgentLoadException, AgentInitializationException {
+    public static void main(String[] args) throws Exception {
 
 	StringBuffer s = new StringBuffer(args.length > 1 ? args[1] : "");
 
@@ -47,7 +44,7 @@ public class HeapAudit extends HeapUtil implements ClassFileTransformer {
     }
 
     public static void load(String pid,
-			    String args) throws AttachNotSupportedException, IOException, AgentLoadException, AgentInitializationException {
+			    String args) throws Exception {
 
 	VirtualMachine vm = VirtualMachine.attach(pid);
 
@@ -93,6 +90,7 @@ public class HeapAudit extends HeapUtil implements ClassFileTransformer {
 				       true);
 
 	if (instrumentation.isRetransformClassesSupported()) {
+	    //(dynamic || (HeapAudit.class.getClassLoader() == null))) {
 
 	    ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
 
