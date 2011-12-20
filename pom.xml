@@ -6,7 +6,7 @@
 
   <groupId>com.foursquare</groupId>
   <artifactId>heapaudit</artifactId>
-  <version>1.0.4</version>
+  <version>1.0.5</version>
   <packaging>jar</packaging>
 
   <properties>
@@ -87,7 +87,7 @@
               <goal>verify</goal>
             </goals>
             <configuration>
-              <argLine>-javaagent:${project.build.directory}/${artifactId}-${version}.jar="-Corg/apache/maven/.+ -Cjunit/.+ -Corg/junit/.+"</argLine>
+              <argLine>-javaagent:${project.build.directory}/${artifactId}-${version}.jar="-Xconditional -Aorg/apache/maven/.+ -Ajunit/.+ -Aorg/junit/.+"</argLine>
               <workingDirectory>${project.build.directory}</workingDirectory>
               <includes>
                 <include>**/Test*.java</include>

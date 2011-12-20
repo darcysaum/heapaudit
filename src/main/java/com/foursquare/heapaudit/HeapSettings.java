@@ -8,231 +8,137 @@ class HeapSettings {
     public static void parse(String args,
 			     boolean dynamic) {
 
-	// When the HeapAudit agent is loaded, all classes except the ones below
-	// are candidates for instrumentation. To avoid additional classes from
-	// begin instrumented, specify an arbitrary number of -C<class_regex>
-	// where <class_regex> is used to match the fully qualified class name.
-	// To trace a class, specify +C<class_regex>. The -C<class_regex> option
-	// takes precedence and tracing information for the matching class will
-	// not appear. Specify an arbitrary number of -M<method_regex> or
-	// +M<method_regex> options where <method_regex> is used to match the
-	// fully qualified method name and signature at the per-method level.
-	// The -C options take precedence over the +M options when applied to
-	// the same class. Use the * prefix instead of the + prefix to switch
-	// from tracing mode to tracing plus debug mode.
-	//   i.e.
-	//     * To instrument all classes except the class com/foursquare/foo
-	//           -Ccom/foursquare/foo
-	//     * To instrument all classes and with extra tracing information
-	//       for only the class com/foursquare/foo
-	//           +Ccom/foursquare/foo
-	//     * To instrument all classes except the class com/foursquare/foo
-	//       and with extra tracing information for all classes under the
-	//       com/foursquare/ namespace
-	//           -Ccom/foursquare/foo +Ccom/foursquare/.+
-	//     * To instrument all classes except the following toString method
-	//       com/foursquare/foo.toString()Ljava/lang/String;
-	//           -Mcom/foursquare/foo\.toString\(\)Ljava/lang/String;
-	//     * To instrument all classes and with extra tracing information
-	//       for all toString methods
-	//           +M.+\.toString\(.*\)Ljava/lang/String;
-	//     * To instrument all classes and with extra tracing plus debug
-	//       information for all classes and methods
-	//           *C.+
-	// Use +O<setting> or -O<setting> to enable or disable settings where
-	// <setting> can be one of the following
-	//     * conditional - To enable/disable the conditional setting. This
-	//                     may be enabled if the majority of the time zero
-	//                     recorders are registered. Enabled by default.
-	// When launched in dynamic mode, specify an arbitrary number of
-	// +R<method_regex> or -R<method_regex> where <method_regex> is used to
-	// match the fully qualified method name and signature to enable or
-	// disable injected recorders.
-	//     * To dynamically inject recorders for all toString methods in
-	//       com/foursquare/foo
-	//           +Rcom/foursquare/foo/toString.+
-	//     * To dynamically remove recorders for all toString methods in
-	//       com/foursquare/foo and dump heap allocations to stdout
-	//           -Rcom/foursquare/foo/toString.+
+	// The following describes how to specify the args string.
+	// 
+	//   Syntax for args: [ -Xconditional |
+	//                      -A<path> |
+	//                      -D<path> |
+	//                      -T<path> |
+        //                      -I<path> |
+        //                      -R<path> ]
+	//
+	//   Syntax for path: <class_regex>[@<method_regex>]
+	//
+	//   * Use -Xconditional if most of the time zero recorders are
+	//     registered to actively record heap allocations. It includes
+	//     extra if-statements to short-circuit the recording logic.
+	//     However, if recorders are expected to be mostly present, then
+	//     including extra if-statements adds extra execution instructions.
+	//
+	//   * Use -A to avoid auditing a particular path.
+	//   * Use -D to debug instrumentation of a particular path.
+	//   * Use -T to trace execution of auditing a particular path.
+	//   * Use -I to dynamically inject recorders for a particular path.
+	//   * Use -R to dynamically remove recorders for a particular path.
+	//
+	//   * Paths are specified as a one or two part regular expressions
+	//     where if the second part if omitted, it is treated as a catch all
+	//     wild card. The class_regex matches with the full namespace path
+	//     of the class where '/' is used as the separator. The method_regex
+	//     matches with the method name and method signature where the
+	//     signature follows the JNI method descriptor convention. See
+	//     http://java.sun.com/docs/books/jni/html/types.html
+	//
+	//   For instance:
+	//
+	//     The following avoids auditing all methods under the class
+	//     com/foursquare/MyUtil
+	//       -Acom/foursquare/MyUtil
+	//
+	//     The following injects recorders for all toString methods under
+	//     the class com/foursquare/MyTest
+	//       -Icom/foursquare/MyTest@toString.+
+	//
+	//   The -D and -T options are normally used for HeapAudit development
+	//   purposes only.
+	//
+	//   The -I and -R options are only applicable when HeapAudit is
+	//   dynamically injected into a running process. The dynamically
+	//   injected recorders capture all heap allocations that occur within
+	//   the designated method, including sub-method calls.
 
 	HeapSettings.dynamic = dynamic;
 
-	classesToAvoid.clear();
+	toAvoidAuditing.clear();
 
-	classesToDebug.clear();
+	toDebugAuditing.clear();
 
-	classesToTrace.clear();
+	toTraceAuditing.clear();
 
-	methodsToAvoid.clear();
+	toInjectRecorder.clear();
 
-	methodsToDebug.clear();
+	toRemoveRecorder.clear();
 
-	methodsToTrace.clear();
-
-	methodsToInjectRecorder.clear();
-
-	methodsToRemoveRecorder.clear();
-
-	classesToAvoid.addAll(Arrays.asList("java/lang/ThreadLocal",
-					    "org/objectweb/asm/.+",
-					    "com/foursquare/heapaudit/(?!test/).+",
-					    "[$].*",
-					    "java/.+",
-					    "javax/.+",
-					    "org/jcp/.+",
-					    "org/xml/.+",
-					    "com/apple/.+",
-					    "com/sun/.+",
-					    "sun/.+"));
+	toAvoidAuditing.addAll(Arrays.asList(new Pattern("java/lang/ThreadLocal"),
+					     new Pattern("org/objectweb/asm/.+"),
+					     new Pattern("com/foursquare/heapaudit/(?!test/).+"),
+					     new Pattern("[$].*"),
+					     new Pattern("java/.+"),
+					     new Pattern("javax/.+"),
+					     new Pattern("org/jcp/.+"),
+					     new Pattern("org/xml/.+"),
+					     new Pattern("com/apple/.+"),
+					     new Pattern("com/sun/.+"),
+					     new Pattern("sun/.+")));
 
 	if (args != null) {
 
 	    for (String arg: args.split(" ")) {
 
-		if (arg.length() >= 2) {
+                if ((arg.length() < 2) ||
+		    (arg.charAt(0) != '-')) {
 
-		    char prefix = arg.charAt(0);
+		    throw new IllegalArgumentException(arg);
 
-		    char option = arg.charAt(1);
+		}
 
-		    String value = (arg.length() > 2) ? arg.substring(2) : null;
+		String value = (arg.length() > 2) ? arg.substring(2) : null;
 
-		    switch (option) {
+		switch (arg.charAt(1)) {
 
-		    case 'O':
+		case 'X' :
 
-			if (value.equals("conditional")) {
+		    if (value.equals("conditional")) {
 
-			    conditional = (prefix == '+');
-
-			}
-
-			break;
-
-		    case 'C':
-
-		    case 'M':
-
-		    case 'R':
-
-			switch (prefix) {
-
-			case '-':
-
-			    if (value == null) {
-
-				throw new IllegalArgumentException(arg);
-
-			    }
-			    else {
-
-				switch (option) {
-
-				case 'C':
-
-				    classesToAvoid.add(value);
-
-				    break;
-
-				case 'M':
-
-				    methodsToAvoid.add(value);
-
-				    break;
-
-				case 'R':
-
-				    methodsToRemoveRecorder.add(value);
-
-				    break;
-
-				}
-
-			    }
-
-			    break;
-
-			case '+':
-
-			    if (value == null) {
-
-				throw new IllegalArgumentException(arg);
-
-			    }
-			    else {
-
-				switch (option) {
-
-				case 'C':
-
-				    classesToTrace.add(value);
-
-				    break;
-
-				case 'M':
-
-				    methodsToTrace.add(value);
-
-				    break;
-
-				case 'R':
-
-				    methodsToInjectRecorder.add(value);
-
-				    break;
-
-				}
-
-			    }
-
-			    break;
-
-			case '*':
-
-			    if (value == null) {
-
-				throw new IllegalArgumentException(arg);
-
-			    }
-			    else {
-
-				switch (option) {
-
-				case 'C':
-
-				    classesToDebug.add(value);
-
-				    classesToTrace.add(value);
-
-				    break;
-
-				case 'M':
-
-				    methodsToDebug.add(value);
-
-				    methodsToTrace.add(value);
-
-				    break;
-
-				}
-
-			    }
-
-			    break;
-
-			default:
-
-			    throw new IllegalArgumentException(arg);
-
-			}
-
-			break;
-
-		    default:
-
-			throw new IllegalArgumentException(arg);
+			conditional = true;
 
 		    }
+
+		    break;
+
+		case 'A':
+
+		    toAvoidAuditing.add(new Pattern(value));
+
+		    break;
+
+		case 'D':
+
+		    toDebugAuditing.add(new Pattern(value));
+
+		    break;
+
+		case 'I':
+
+		    toInjectRecorder.add(new Pattern(value));
+
+		    break;
+
+		case 'R':
+
+		    toRemoveRecorder.add(new Pattern(value));
+
+		    break;
+
+		case 'T':
+
+		    toTraceAuditing.add(new Pattern(value));
+
+		    break;
+
+		default:
+
+		    throw new IllegalArgumentException(arg);
 
 		}
 
@@ -255,30 +161,31 @@ class HeapSettings {
 
     public static boolean conditional = true;
 
-    private final static ArrayList<String> classesToAvoid = new ArrayList<String>();
+    private final static ArrayList<Pattern> toAvoidAuditing = new ArrayList<Pattern>();
 
-    private final static ArrayList<String> classesToDebug = new ArrayList<String>();
+    private final static ArrayList<Pattern> toDebugAuditing = new ArrayList<Pattern>();
 
-    private final static ArrayList<String> classesToTrace = new ArrayList<String>();
+    private final static ArrayList<Pattern> toTraceAuditing = new ArrayList<Pattern>();
 
-    private final static ArrayList<String> methodsToAvoid = new ArrayList<String>();
+    private final static ArrayList<Pattern> toInjectRecorder = new ArrayList<Pattern>();
 
-    private final static ArrayList<String> methodsToDebug = new ArrayList<String>();
+    private final static ArrayList<Pattern> toRemoveRecorder = new ArrayList<Pattern>();
 
-    private final static ArrayList<String> methodsToTrace = new ArrayList<String>();
+    private static boolean should(ArrayList<Pattern> patterns,
+				  String classPath,
+				  String methodName) {
 
-    private final static ArrayList<String> methodsToInjectRecorder = new ArrayList<String>();
+	for (Pattern pattern: patterns) {
 
-    private final static ArrayList<String> methodsToRemoveRecorder = new ArrayList<String>();
+	    if (classPath.matches(pattern.classPattern)) {
 
-    private static boolean contains(ArrayList<String> list,
-				    String item) {
+		if ((methodName == null) ||
+		    (pattern.methodPattern == null) ||
+		    methodName.matches(pattern.methodPattern)) {
 
-	for (String regex: list) {
+		    return true;
 
-	    if (item.matches(regex)) {
-
-		return true;
+		}
 
 	    }
 
@@ -288,61 +195,68 @@ class HeapSettings {
 
     }
 
-    public static boolean avoidClass(String c) {
+    public static boolean shouldAvoidAuditing(String classPath,
+					      String methodName) {
 
-	return contains(classesToAvoid,
-			c);
-
-    }
-
-    public static boolean debugClass(String c) {
-
-	return contains(classesToDebug,
-			c);
+	return should(toAvoidAuditing,
+		      classPath,
+		      methodName);
 
     }
 
-    public static boolean traceClass(String c) {
+    public static boolean shouldDebugAuditing(String classPath,
+					    String methodName) {
 
-	return contains(classesToTrace,
-			c);
-
-    }
-
-    public static boolean avoidMethod(String m) {
-
-	return contains(methodsToAvoid,
-			m);
+	return should(toDebugAuditing,
+		      classPath,
+		      methodName);
 
     }
 
-    public static boolean debugMethod(String m) {
+    public static boolean shouldTraceAuditing(String classPath,
+					      String methodName) {
 
-	return contains(methodsToDebug,
-			m);
-
-    }
-
-    public static boolean traceMethod(String m) {
-
-	return contains(methodsToTrace,
-			m);
+	return should(toTraceAuditing,
+		      classPath,
+		      methodName);
 
     }
 
-    public static boolean injectRecorder(String m) {
+    public static boolean shouldInjectRecorder(String classPath,
+					       String methodName) {
 
 	return dynamic &&
-	    contains(methodsToInjectRecorder,
-		     m);
+	    should(toInjectRecorder,
+		   classPath,
+		   methodName);
 
     }
 
-    public static boolean removeRecorder(String m) {
+    public static boolean shouldRemoveRecorder(String classPath,
+					       String methodName) {
 
 	return dynamic &&
-	    contains(methodsToRemoveRecorder,
-		     m);
+	    should(toRemoveRecorder,
+		   classPath,
+		   methodName);
+
+    }
+
+    private static class Pattern {
+
+	public Pattern(String pattern) {
+
+	    String[] parts = pattern.split("@");
+
+	    classPattern = parts[0];
+
+	    methodPattern = (parts.length > 1) ? parts[1] : null;
+
+	}
+
+	public final String classPattern;
+
+	public final String methodPattern;
 
     }
 

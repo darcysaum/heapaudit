@@ -10,17 +10,16 @@ import org.objectweb.asm.MethodVisitor;
 public class HeapClass extends HeapUtil implements ClassVisitor {
 
     public HeapClass(ClassVisitor cv,
-		     String classId) {
+		     String classId,
+		     boolean debugAuditing) {
 
 	this.cv = new ClassAdapter(cv);
 
 	this.id = classId;
 
-	this.debug = HeapSettings.debugClass(classId);
+	this.debugClass = debugAuditing;
 
-	this.trace = HeapSettings.traceClass(classId);
-
-	instrumentation(trace,
+	instrumentation(debugClass,
 			"\tCLASS " + id);
 
     }
@@ -29,9 +28,7 @@ public class HeapClass extends HeapUtil implements ClassVisitor {
 
     private final String id;
 
-    private final boolean debug;
-
-    private final boolean trace;
+    private final boolean debugClass;
 
     public void visit(int version,
 		      int access,
@@ -40,7 +37,7 @@ public class HeapClass extends HeapUtil implements ClassVisitor {
 		      String superName,
 		      String[] interfaces) {
 
-	instrumentation(debug,
+	instrumentation(debugClass,
 			"visit()");
 
 	cv.visit(version,
@@ -55,7 +52,7 @@ public class HeapClass extends HeapUtil implements ClassVisitor {
     public void visitSource(String source,
 			    String debug) {
 
-	instrumentation(this.debug,
+	instrumentation(debugClass,
 			"visitSource(" + source + ", " + debug + ")");
 
 	cv.visitSource(source,
@@ -67,7 +64,7 @@ public class HeapClass extends HeapUtil implements ClassVisitor {
 				String name,
 				String desc) {
 
-	instrumentation(debug,
+	instrumentation(debugClass,
 			"visitOuterClass()");
 
 	cv.visitOuterClass(owner,
@@ -79,7 +76,7 @@ public class HeapClass extends HeapUtil implements ClassVisitor {
     public AnnotationVisitor visitAnnotation(String desc,
 					     boolean visible) {
 
-	instrumentation(debug,
+	instrumentation(debugClass,
 			"visitAnnotation()");
 
 	return cv.visitAnnotation(desc,
@@ -89,7 +86,7 @@ public class HeapClass extends HeapUtil implements ClassVisitor {
 
     public void visitAttribute(Attribute attr) {
 
-	instrumentation(debug,
+	instrumentation(debugClass,
 			"visitAttribute()");
 
 	cv.visitAttribute(attr);
@@ -101,7 +98,7 @@ public class HeapClass extends HeapUtil implements ClassVisitor {
 				String innerName,
 				int access) {
 
-	instrumentation(debug,
+	instrumentation(debugClass,
 			"visitInnerClass()");
 
 	cv.visitInnerClass(name,
@@ -117,7 +114,7 @@ public class HeapClass extends HeapUtil implements ClassVisitor {
 				   String signature,
 				   Object value) {
 
-	instrumentation(debug,
+	instrumentation(debugClass,
 			"visitField()");
 
 	return cv.visitField(access,
@@ -134,12 +131,22 @@ public class HeapClass extends HeapUtil implements ClassVisitor {
 				     String signature,
 				     String[] exceptions) {
 
-	instrumentation(debug,
+	instrumentation(debugClass,
 			"visitMethod()");
 
-	String method = id + "." + name + desc;
+	String method = name + desc;
 
-	if (HeapSettings.avoidMethod(method)) {
+	boolean debugAuditing = HeapSettings.shouldDebugAuditing(id, method);
+
+	boolean traceAuditing = HeapSettings.shouldTraceAuditing(id, method);
+
+	boolean injectRecorder = HeapSettings.shouldInjectRecorder(id, method);
+
+	boolean removeRecorder = HeapSettings.shouldRemoveRecorder(id, method);
+
+        if (HeapSettings.shouldAvoidAuditing(id, method) &&
+	    !injectRecorder &&
+	    !removeRecorder) {
 
 	    return cv.visitMethod(access,
 				  name,
@@ -149,22 +156,14 @@ public class HeapClass extends HeapUtil implements ClassVisitor {
 
         }
 
-	boolean debug = this.debug || HeapSettings.debugMethod(method);
-
-	boolean trace = this.trace || HeapSettings.traceMethod(method);
-
-	boolean injectRecorder = HeapSettings.injectRecorder(method);
-
-	boolean removeRecorder = HeapSettings.removeRecorder(method);
-
 	HeapMethod mv = new HeapMethod(cv.visitMethod(access,
 						      name,
 						      desc,
 						      signature,
 						      exceptions),
 				       method,
-				       debug,
-				       trace,
+				       debugAuditing,
+				       traceAuditing,
 				       injectRecorder,
 				       removeRecorder);
 
@@ -175,8 +174,8 @@ public class HeapClass extends HeapUtil implements ClassVisitor {
 
 	mv.lvs = new HeapVariables(access,
 				   desc,
-				   debug,
-				   trace,
+				   debugAuditing,
+				   traceAuditing,
 				   mv);
 
 	return mv.lvs.lvs;
@@ -185,7 +184,7 @@ public class HeapClass extends HeapUtil implements ClassVisitor {
 
     public void visitEnd() {
 
-	instrumentation(debug,
+	instrumentation(debugClass,
 			"visitEnd()");
 
 	cv.visitEnd();

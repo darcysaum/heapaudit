@@ -28,9 +28,9 @@ public class HeapAudit extends HeapUtil implements ClassFileTransformer {
 
     public static void main(String[] args) throws Exception {
 
-	StringBuffer s = new StringBuffer(args.length > 1 ? args[1] : "");
+	StringBuffer s = new StringBuffer("-Xconditional");
 
-	for (int i = 2; i < args.length; ++i) {
+	for (int i = 1; i < args.length; ++i) {
 
 	    s.append(' ');
 
@@ -90,7 +90,6 @@ public class HeapAudit extends HeapUtil implements ClassFileTransformer {
 				       true);
 
 	if (instrumentation.isRetransformClassesSupported()) {
-	    //(dynamic || (HeapAudit.class.getClassLoader() == null))) {
 
 	    ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
 
@@ -124,7 +123,9 @@ public class HeapAudit extends HeapUtil implements ClassFileTransformer {
 			    ProtectionDomain protectionDomain,
 			    byte[] classfileBuffer) {
 
-	if (HeapSettings.avoidClass(className)) {
+	if (HeapSettings.shouldAvoidAuditing(className, null) &&
+	    !HeapSettings.shouldInjectRecorder(className, null) &&
+	    !HeapSettings.shouldRemoveRecorder(className, null)) {
 
 	    return null;
 
@@ -136,7 +137,8 @@ public class HeapAudit extends HeapUtil implements ClassFileTransformer {
 					 ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
 
 	cr.accept(new HeapClass(cw,
-				className),
+				className,
+				HeapSettings.shouldDebugAuditing(className, null)),
 	          ClassReader.SKIP_FRAMES);
 
 	return cw.toByteArray();

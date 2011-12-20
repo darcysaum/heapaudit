@@ -62,15 +62,21 @@ to implement the integration hook to register heap recorders).
 Launch HeapAudit dynamically by attaching to the process of interest (does not
 require MyTest to have any prior intrumentations).
 
-	$ java -jar heapaudit.jar 999 +Rcom/foursquare/test/MyTest.+
+	$ java -jar heapaudit.jar 999 -Icom/foursquare/test/MyTest@test.+
 
-	$ java -jar heapaudit.jar 999 -Rcom/foursquare/test/MyTest.+
+	$ java -jar heapaudit.jar 999 -Rcom/foursquare/test/MyTest@test.+
+
+The JDK's tools.jar library is required to launch HeapAudit dynamically. If
+launching within JRE, specify the -Xbootclasspath command line arg to point to
+the tools.jar file.
+
+	$ java -Xbootclasspath/a:/usr/local/lib/tools.jar -jar heapaudit.jar 999 -Icom/foursquare/test/MyTest@test.+
 
 Additional options can be passed to HeapAudit to customize which classes and/or
 methods are not to be instrumented for recording allocations. For additional
 information on how to specify the options, see [HeapSettings.java](https://github.com/foursquare/heapaudit/blob/master/src/main/java/com/foursquare/heapaudit/HeapSettings.java).
 
-	$ java -javaagent:heapaudit.jar="-Ccom/foursquare/test/.+" MyTest
+	$ java -javaagent:heapaudit.jar="-Acom/foursquare/test/.+" MyTest
 
 ## Dependencies
 
