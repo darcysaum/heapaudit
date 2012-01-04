@@ -6,50 +6,50 @@ import java.util.ArrayList;
 public abstract class HeapRecorder {
 
     abstract public void record(String type,
-				int count,
-				long size);
+                                int count,
+                                long size);
 
     protected static String friendly(String type) {
 
-	switch (type.charAt(0)) {
+        switch (type.charAt(0)) {
 
-	case 'Z':
+        case 'Z':
 
-	    return "boolean";
+            return "boolean";
 
-	case 'B':
+        case 'B':
 
-	    return "byte";
+            return "byte";
 
-	case 'C':
+        case 'C':
 
-	    return "char";
+            return "char";
 
-	case 'S':
+        case 'S':
 
-	    return "short";
+            return "short";
 
-	case 'I':
+        case 'I':
 
-	    return "int";
+            return "int";
 
-	case 'J':
+        case 'J':
 
-	    return "long";
+            return "long";
 
-	case 'F':
+        case 'F':
 
-	    return "float";
+            return "float";
 
-	case 'D':
+        case 'D':
 
-	    return "double";
+            return "double";
 
-	default:
+        default:
 
-	    return type.replaceAll("^\\[*L", "").replaceAll(";$", "").replaceAll("/", ".");
+            return type.replaceAll("^\\[*L", "").replaceAll(";$", "").replaceAll("/", ".");
 
-	}
+        }
 
     }
 
@@ -64,79 +64,79 @@ public abstract class HeapRecorder {
 
     private static ThreadLocal<ArrayList<HeapRecorder>> localRecorders = new ThreadLocal<ArrayList<HeapRecorder>>() {
 
-	@Override protected ArrayList<HeapRecorder> initialValue() {
+        @Override protected ArrayList<HeapRecorder> initialValue() {
 
-	    return new ArrayList<HeapRecorder>();
+            return new ArrayList<HeapRecorder>();
 
-	}
+        }
 
     };
 
     public static boolean hasRecorders() {
 
-	return (localRecorders.get().size() > 0) || (globalRecorders.size() > 0);
+        return (localRecorders.get().size() > 0) || (globalRecorders.size() > 0);
 
     }
 
     public static ArrayList<HeapRecorder> getRecorders() {
 
-	ArrayList<HeapRecorder> recorders = new ArrayList<HeapRecorder>(globalRecorders);
+        ArrayList<HeapRecorder> recorders = new ArrayList<HeapRecorder>(globalRecorders);
 
-	recorders.addAll(localRecorders.get());
+        recorders.addAll(localRecorders.get());
 
-	return recorders;
+        return recorders;
 
     }
 
     public static synchronized void register(HeapRecorder recorder) {
 
-	ArrayList<HeapRecorder> recorders = new ArrayList<HeapRecorder>(globalRecorders);
+        ArrayList<HeapRecorder> recorders = new ArrayList<HeapRecorder>(globalRecorders);
 
-	recorders.add(recorder);
+        recorders.add(recorder);
 
-	globalRecorders = recorders;
+        globalRecorders = recorders;
 
     }
 
     public static synchronized void unregister(HeapRecorder recorder) {
 
-	ArrayList<HeapRecorder> recorders = new ArrayList<HeapRecorder>(globalRecorders);
+        ArrayList<HeapRecorder> recorders = new ArrayList<HeapRecorder>(globalRecorders);
 
-	recorders.remove(recorder);
+        recorders.remove(recorder);
 
-	globalRecorders = recorders;
+        globalRecorders = recorders;
 
     }
 
     public static void register(HeapRecorder recorder,
-				boolean global) {
+                                boolean global) {
 
-	if (global) {
+        if (global) {
 
-	    register(recorder);
+            register(recorder);
 
-	}
-	else {
+        }
+        else {
 
-	    localRecorders.get().add(recorder);
+            localRecorders.get().add(recorder);
 
-	}
+        }
 
     }
 
     public static void unregister(HeapRecorder recorder,
-				  boolean global) {
+                                  boolean global) {
 
-	if (global) {
+        if (global) {
 
-	    unregister(recorder);
+            unregister(recorder);
 
-	}
-	else {
+        }
+        else {
 
-	    localRecorders.get().remove(recorder);
+            localRecorders.get().remove(recorder);
 
-	}
+        }
 
     }
 

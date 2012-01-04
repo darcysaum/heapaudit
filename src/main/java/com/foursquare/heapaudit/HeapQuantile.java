@@ -10,22 +10,22 @@ public class HeapQuantile extends HeapRecorder {
     // The following is a log2 lookup table for the hash function.
 
     private static byte[] buckets = new byte[] {
-	0, 0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3,
-	4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-	5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
-	5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
-	6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
-	6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
-	6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
-	6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
-	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7
+        0, 0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3,
+        4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+        5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
+        5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
+        6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+        6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+        6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+        6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+        7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+        7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7
     };
 
     // The following hash function uses the log2 lookup table to locate the
@@ -33,131 +33,131 @@ public class HeapQuantile extends HeapRecorder {
 
     private static byte hash(long value) {
 
-	long v = value >> 16;
+        long v = value >> 16;
 
-	if (v == 0) {
+        if (v == 0) {
 
-	    v = value >> 8;
+            v = value >> 8;
 
-	    if (v == 0) {
+            if (v == 0) {
 
-		return buckets[(int)value];
+                return buckets[(int)value];
 
-	    }
-	    else {
+            }
+            else {
 
-		return (byte)(buckets[(int)v] + 8);
+                return (byte)(buckets[(int)v] + 8);
 
-	    }
+            }
 
-	}
-	else {
+        }
+        else {
 
-	    // Hash everything larger than 64k into bucket 16
+            // Hash everything larger than 64k into bucket 16
 
-	    return 16;
+            return 16;
 
-	}
+        }
 
     }
 
     private class Quantile {
 
-	// Total count of occurrences in this quantile.
+        // Total count of occurrences in this quantile.
 
-	public int occurrences = 0;
+        public int occurrences = 0;
 
-	// Accumulative count of all array lengths in this quantile.
+        // Accumulative count of all array lengths in this quantile.
 
-	public int count = 0;
+        public int count = 0;
 
-	// Accumulative size of all occurrences in this quantile.
+        // Accumulative size of all occurrences in this quantile.
 
-	public long size = 0;
+        public long size = 0;
 
     }
 
     private class Quantiles extends HashMap<String, HashMap<Integer, Quantile>> {
 
-	// The following do not need to be synchronized because everything is local to the
-	// current thread.
+        // The following do not need to be synchronized because everything is local to the
+        // current thread.
 
-	public void record(String type,
-			   int count,
-			   long size) {
+        public void record(String type,
+                           int count,
+                           long size) {
 
-	    HashMap<Integer, Quantile> quantiles = get(type);
+            HashMap<Integer, Quantile> quantiles = get(type);
 
-	    if (quantiles == null) {
+            if (quantiles == null) {
 
-		quantiles = new HashMap<Integer, Quantile>();
+                quantiles = new HashMap<Integer, Quantile>();
 
-		put(type,
-		    quantiles);
+                put(type,
+                    quantiles);
 
-	    }
+            }
 
-	    Integer bucket = (int)hash(size);
+            Integer bucket = (int)hash(size);
 
-	    Quantile quantile = quantiles.get(bucket);
+            Quantile quantile = quantiles.get(bucket);
 
-	    if (quantile == null) {
+            if (quantile == null) {
 
-		quantile = new Quantile();
+                quantile = new Quantile();
 
-		quantiles.put(bucket,
-			      quantile);
+                quantiles.put(bucket,
+                              quantile);
 
-	    }
+            }
 
-	    ++quantile.occurrences;
+            ++quantile.occurrences;
 
-	    quantile.count += count;
+            quantile.count += count;
 
-	    quantile.size += size;
+            quantile.size += size;
 
-	}
+        }
 
     }
 
     private class Records {
 
-	// Used for tracking quantiles stats of non-array types.
+        // Used for tracking quantiles stats of non-array types.
 
-	public final Quantiles quantilesType = new Quantiles();
+        public final Quantiles quantilesType = new Quantiles();
 
-	// Used for tracking quantiles stats of array types.
+        // Used for tracking quantiles stats of array types.
 
-	public final Quantiles quantilesArray = new Quantiles();
+        public final Quantiles quantilesArray = new Quantiles();
 
-	// Register this thread local instance to the global list.
+        // Register this thread local instance to the global list.
 
-	public Records(ArrayList<Quantiles> statsType,
-		       ArrayList<Quantiles> statsArray) {
+        public Records(ArrayList<Quantiles> statsType,
+                       ArrayList<Quantiles> statsArray) {
 
-	    synchronized (statsType) {
+            synchronized (statsType) {
 
-		statsType.add(quantilesType);
+                statsType.add(quantilesType);
 
-	    }
+            }
 
-	    synchronized (statsArray) {
+            synchronized (statsArray) {
 
-		statsArray.add(quantilesArray);
+                statsArray.add(quantilesArray);
 
-	    }
+            }
 
-	}
+        }
 
-	public void record(String type,
-			   int count,
-			   long size) {
+        public void record(String type,
+                           int count,
+                           long size) {
 
-	    (count < 0 ? quantilesType : quantilesArray).record(type,
-								count,
-								size);
+            (count < 0 ? quantilesType : quantilesArray).record(type,
+                                                                count,
+                                                                size);
 
-	}
+        }
 
     }
 
@@ -171,163 +171,163 @@ public class HeapQuantile extends HeapRecorder {
 
     private ThreadLocal<Records> stats = new ThreadLocal<Records>() {
 
-	@Override protected Records initialValue() {
+        @Override protected Records initialValue() {
 
-	    return new Records(statsType,
-			       statsArray);
+            return new Records(statsType,
+                               statsArray);
 
-	}
+        }
 
     };
 
     @Override public void record(String type,
-				 int count,
-				 long size) {
+                                 int count,
+                                 long size) {
 
-	stats.get().record(type,
-			   count,
-			   size);
+        stats.get().record(type,
+                           count,
+                           size);
 
     }
 
     public class Stats implements Comparable<Stats> {
 
-	public final String name;
+        public final String name;
 
         public final int occurrences;
 
-	public final int avgCount;
+        public final int avgCount;
 
-	public final long avgSize;
+        public final long avgSize;
 
-	@Override public int compareTo(Stats s) {
+        @Override public int compareTo(Stats s) {
 
-	    int comparison = name.compareTo(s.name);
+            int comparison = name.compareTo(s.name);
 
-	    return comparison == 0 ? -occurrences : comparison;
+            return comparison == 0 ? -occurrences : comparison;
 
-	}
+        }
 
-	public Stats(String name,
-		     int occurrences,
-		     int count,
-		     long size) {
+        public Stats(String name,
+                     int occurrences,
+                     int count,
+                     long size) {
 
-	    this.name = name;
+            this.name = name;
 
-	    this.occurrences = occurrences;
+            this.occurrences = occurrences;
 
-	    this.avgCount = (int)Math.ceil((double)count / occurrences);
+            this.avgCount = (int)Math.ceil((double)count / occurrences);
 
-	    this.avgSize = (long)Math.ceil((double)size / occurrences);
+            this.avgSize = (long)Math.ceil((double)size / occurrences);
 
-	}
+        }
 
-	@Override public String toString() {
+        @Override public String toString() {
 
-	    if (avgSize < 0) {
+            if (avgSize < 0) {
 
-		if (avgCount < 0) {
+                if (avgCount < 0) {
 
-		    return name + " x" + occurrences;
+                    return name + " x" + occurrences;
 
-		}
-		else {
+                }
+                else {
 
-		    return name + "[" + avgCount + "] x" + occurrences;
+                    return name + "[" + avgCount + "] x" + occurrences;
 
-		}
+                }
 
-	    }
-	    else {
+            }
+            else {
 
-		if (avgCount < 0) {
+                if (avgCount < 0) {
 
-		    return name + " (" + avgSize + " bytes) x" + occurrences;
+                    return name + " (" + avgSize + " bytes) x" + occurrences;
 
-		}
-		else {
+                }
+                else {
 
-		    return name + "[" + avgCount + "] (" + avgSize + " bytes) x" + occurrences;
+                    return name + "[" + avgCount + "] (" + avgSize + " bytes) x" + occurrences;
 
-		}
+                }
 
-	    }
+            }
 
-	}
+        }
 
     }
 
     // The following merges individual quantile statistics.
 
     private void merge(Quantiles combined,
-		       Quantiles individual) {
+                       Quantiles individual) {
 
-	for (Map.Entry<String, HashMap<Integer, Quantile>> s: individual.entrySet()) {
+        for (Map.Entry<String, HashMap<Integer, Quantile>> s: individual.entrySet()) {
 
-	    String type = friendly(s.getKey());
+            String type = friendly(s.getKey());
 
-	    HashMap<Integer, Quantile> quantiles = combined.get(type);
+            HashMap<Integer, Quantile> quantiles = combined.get(type);
 
-	    if (quantiles == null) {
+            if (quantiles == null) {
 
-		quantiles = new HashMap<Integer, Quantile>();
+                quantiles = new HashMap<Integer, Quantile>();
 
-		combined.put(type,
-			     quantiles);
+                combined.put(type,
+                             quantiles);
 
-	    }
+            }
 
-	    for (Map.Entry<Integer, Quantile> q: s.getValue().entrySet()) {
+            for (Map.Entry<Integer, Quantile> q: s.getValue().entrySet()) {
 
-		Integer bucket = q.getKey();
+                Integer bucket = q.getKey();
 
-		Quantile quantile = quantiles.get(bucket);
+                Quantile quantile = quantiles.get(bucket);
 
-		if (quantile == null) {
+                if (quantile == null) {
 
-		    quantile = new Quantile();
+                    quantile = new Quantile();
 
-		    quantiles.put(bucket,
-				  quantile);
+                    quantiles.put(bucket,
+                                  quantile);
 
-		}
+                }
 
-		// The following may contain partial records due to in-flight allocations.
-		// However, if the sample size is large enough, it's worth the tradeoff to be
-		// slightly off with the arithmetics and avoid introducing reader/writer locks.
+                // The following may contain partial records due to in-flight allocations.
+                // However, if the sample size is large enough, it's worth the tradeoff to be
+                // slightly off with the arithmetics and avoid introducing reader/writer locks.
 
-		Quantile r = q.getValue();
+                Quantile r = q.getValue();
 
-		quantile.occurrences += r.occurrences;
+                quantile.occurrences += r.occurrences;
 
-		quantile.count += r.count;
+                quantile.count += r.count;
 
-		quantile.size += r.size;
+                quantile.size += r.size;
 
-	    }
+            }
 
-	}
+        }
 
     }
 
     // The following flattens the quantile statistics into summary format.
 
     private void flatten(ArrayList<Stats> summary,
-			 Quantiles quantiles) {
+                         Quantiles quantiles) {
 
-	for (Map.Entry<String, HashMap<Integer, Quantile>> s: quantiles.entrySet()) {
+        for (Map.Entry<String, HashMap<Integer, Quantile>> s: quantiles.entrySet()) {
 
-	    for (Quantile q: s.getValue().values()) {
+            for (Quantile q: s.getValue().values()) {
 
-		summary.add(new Stats(s.getKey(),
-				      q.occurrences,
-				      q.count,
-				      q.size));
+                summary.add(new Stats(s.getKey(),
+                                      q.occurrences,
+                                      q.count,
+                                      q.size));
 
-	    }
+            }
 
-	}
+        }
 
     }
 
@@ -335,69 +335,69 @@ public class HeapQuantile extends HeapRecorder {
     // NOTE: Partial records due to in-flight allocations may occur.
 
     public ArrayList<Stats> tally(boolean global,
-				  boolean sorted) {
+                                  boolean sorted) {
 
         Quantiles qType = new Quantiles();
 
-	Quantiles qArray = new Quantiles();
+        Quantiles qArray = new Quantiles();
 
-	if (global) {
+        if (global) {
 
-	    for (Quantiles quantiles: statsType) {
+            for (Quantiles quantiles: statsType) {
 
-		merge(qType,
-		      quantiles);
+                merge(qType,
+                      quantiles);
 
-	    }
+            }
 
-	    for (Quantiles quantiles: statsArray) {
+            for (Quantiles quantiles: statsArray) {
 
-		merge(qArray,
-		      quantiles);
+                merge(qArray,
+                      quantiles);
 
-	    }
+            }
 
-	}
-	else {
+        }
+        else {
 
-	    merge(qType,
-		  stats.get().quantilesType);
+            merge(qType,
+                  stats.get().quantilesType);
 
-	    merge(qArray,
-		  stats.get().quantilesArray);
+            merge(qArray,
+                  stats.get().quantilesArray);
 
-	}
+        }
 
-	ArrayList<Stats> sQuantiles = new ArrayList<Stats>();
+        ArrayList<Stats> sQuantiles = new ArrayList<Stats>();
 
-	flatten(sQuantiles,
-		qType);
+        flatten(sQuantiles,
+                qType);
 
-	flatten(sQuantiles,
-		qArray);
+        flatten(sQuantiles,
+                qArray);
 
-	if (sorted) {
+        if (sorted) {
 
-	    Collections.sort(sQuantiles);
+            Collections.sort(sQuantiles);
 
-	}
+        }
 
-	return sQuantiles;
+        return sQuantiles;
 
     }
 
     public String summarize(boolean global,
-			    String comments) {
+                            String comments) {
 
-	String summary = (comments == null) ? "HEAP============" : "HEAP: " + comments;
+        String summary = (comments == null) ? "HEAP============" : "HEAP: " + comments;
 
-	for (Stats s: tally(global, true)) {
+        for (Stats s: tally(global, true)) {
 
-	    summary += "\n" + s.toString();
+            summary += "\n" + s.toString();
 
-	}
+        }
 
-	return summary;
+        return summary;
 
     }
 

@@ -13,135 +13,135 @@ import org.objectweb.asm.ClassWriter;
 public class HeapAudit extends HeapUtil implements ClassFileTransformer {
 
     static {
-	/*
+        /*
         Runtime.getRuntime().addShutdownHook(new Thread() {
 
-		@Override public void run() {
+                @Override public void run() {
 
-		    HeapRecorder.instrumentation = null;
+                    HeapRecorder.instrumentation = null;
 
-		}
+                }
 
-	    });
-	*/
+            });
+        */
     }
 
     public static void main(String[] args) throws Exception {
 
-	StringBuffer s = new StringBuffer("-Xconditional");
+        StringBuffer s = new StringBuffer("-Xconditional");
 
-	for (int i = 1; i < args.length; ++i) {
+        for (int i = 1; i < args.length; ++i) {
 
-	    s.append(' ');
+            s.append(' ');
 
-	    s.append(args[i]);
+            s.append(args[i]);
 
-	}
+        }
 
-	load(args[0],
-	     s.toString());
+        load(args[0],
+             s.toString());
 
     }
 
     public static void load(String pid,
-			    String args) throws Exception {
+                            String args) throws Exception {
 
-	VirtualMachine vm = VirtualMachine.attach(pid);
+        VirtualMachine vm = VirtualMachine.attach(pid);
 
-	vm.loadAgent(HeapAudit.class.getProtectionDomain().getCodeSource().getLocation().getPath(),
-		     args);
+        vm.loadAgent(HeapAudit.class.getProtectionDomain().getCodeSource().getLocation().getPath(),
+                     args);
 
-	vm.detach();
+        vm.detach();
 
     }
 
     public static void agentmain(String args,
-				 Instrumentation instrumentation) throws UnmodifiableClassException {
+                                 Instrumentation instrumentation) throws UnmodifiableClassException {
 
-	main(args,
-	     instrumentation,
-	     true);
+        main(args,
+             instrumentation,
+             true);
 
     }
 
     public static void premain(String args,
-			       Instrumentation instrumentation) throws UnmodifiableClassException {
+                               Instrumentation instrumentation) throws UnmodifiableClassException {
 
-	main(args,
-	     instrumentation,
-	     false);
+        main(args,
+             instrumentation,
+             false);
 
     }
 
     private static void main(String args,
-			     Instrumentation instrumentation,
-			     boolean dynamic) throws UnmodifiableClassException {
+                             Instrumentation instrumentation,
+                             boolean dynamic) throws UnmodifiableClassException {
 
         HeapSettings.parse(args,
-			   dynamic);
+                           dynamic);
         
         HeapRecorder.isAuditing = true;
 
-	HeapRecorder.instrumentation = instrumentation;
+        HeapRecorder.instrumentation = instrumentation;
 
-	ClassFileTransformer transformer = new HeapAudit();
+        ClassFileTransformer transformer = new HeapAudit();
 
-	instrumentation.addTransformer(transformer,
-				       true);
+        instrumentation.addTransformer(transformer,
+                                       true);
 
-	if (instrumentation.isRetransformClassesSupported()) {
+        if (instrumentation.isRetransformClassesSupported()) {
 
-	    ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
+            ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
 
-	    for (Class<?> c: instrumentation.getAllLoadedClasses()) {
+            for (Class<?> c: instrumentation.getAllLoadedClasses()) {
 
-		if (instrumentation.isModifiableClass(c)) {
+                if (instrumentation.isModifiableClass(c)) {
 
-		    classes.add(c);
+                    classes.add(c);
 
-		}
+                }
 
-	    }
+            }
 
-	    instrumentation.retransformClasses(classes.toArray(new Class<?>[classes.size()]));
+            instrumentation.retransformClasses(classes.toArray(new Class<?>[classes.size()]));
 
-	}
+        }
 
-	if (dynamic) {
+        if (dynamic) {
 
-	    instrumentation.removeTransformer(transformer);
+            instrumentation.removeTransformer(transformer);
 
-	}
+        }
 
     }
 
     // The following is the main entry point for transforming the bytecode.
 
     public byte[] transform(ClassLoader loader,
-			    String className,
-			    Class<?> classBeingRedefined,
-			    ProtectionDomain protectionDomain,
-			    byte[] classfileBuffer) {
+                            String className,
+                            Class<?> classBeingRedefined,
+                            ProtectionDomain protectionDomain,
+                            byte[] classfileBuffer) {
 
-	if (HeapSettings.shouldAvoidAuditing(className, null) &&
-	    !HeapSettings.shouldInjectRecorder(className, null) &&
-	    !HeapSettings.shouldRemoveRecorder(className, null)) {
+        if (HeapSettings.shouldAvoidAuditing(className, null) &&
+            !HeapSettings.shouldInjectRecorder(className, null) &&
+            !HeapSettings.shouldRemoveRecorder(className, null)) {
 
-	    return null;
+            return null;
 
-	}
+        }
 
-	ClassReader cr = new ClassReader(classfileBuffer);
+        ClassReader cr = new ClassReader(classfileBuffer);
 
-	ClassWriter cw = new ClassWriter(cr,
-					 ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+        ClassWriter cw = new ClassWriter(cr,
+                                         ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
 
-	cr.accept(new HeapClass(cw,
-				className,
-				HeapSettings.shouldDebugAuditing(className, null)),
-	          ClassReader.SKIP_FRAMES);
+        cr.accept(new HeapClass(cw,
+                                className,
+                                HeapSettings.shouldDebugAuditing(className, null)),
+                  ClassReader.SKIP_FRAMES);
 
-	return cw.toByteArray();
+        return cw.toByteArray();
 
     }
 

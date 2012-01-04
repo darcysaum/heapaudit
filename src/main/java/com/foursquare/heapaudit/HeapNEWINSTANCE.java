@@ -12,15 +12,15 @@ class HeapNEWINSTANCE extends HeapUtil {
     // newly allocated class object.
 
     public static void before(boolean debug,
-			      boolean trace,
-			      MethodAdapter mv) {
+                              boolean trace,
+                              MethodAdapter mv) {
 
-	instrumentation(debug,
-			"\tNEWINSTANCE.before");
+        instrumentation(debug,
+                        "\tNEWINSTANCE.before");
 
-	execution(trace,
-		  mv,
-		  "\tNEWINSTANCE.before");
+        execution(trace,
+                  mv,
+                  "\tNEWINSTANCE.before");
 
         // STACK: [...|class]
         mv.visitLdcInsn(-1);
@@ -33,28 +33,28 @@ class HeapNEWINSTANCE extends HeapUtil {
     }
 
     public static void after(boolean debug,
-			     boolean trace,
-			     MethodAdapter mv) {
+                             boolean trace,
+                             MethodAdapter mv) {
 
         instrumentation(debug,
-			"\tNEWINSTANCE.after");
+                        "\tNEWINSTANCE.after");
 
-	execution(trace,
-		  mv,
-		  "\tNEWINSTANCE.after");
+        execution(trace,
+                  mv,
+                  "\tNEWINSTANCE.after");
 
-	Label cleanup = new Label();
+        Label cleanup = new Label();
 
-	Label finish = new Label();
+        Label finish = new Label();
 
-	if (HeapSettings.conditional) {
+        if (HeapSettings.conditional) {
 
-	    // STACK: [...|count|class|obj]
-	    visitCheck(mv,
-		       cleanup);
-	    // STACK: [...|count|class|obj]
+            // STACK: [...|count|class|obj]
+            visitCheck(mv,
+                       cleanup);
+            // STACK: [...|count|class|obj]
 
-	}
+        }
 
         // STACK: [...|count|class|obj]
         mv.visitInsn(Opcodes.DUP_X2);
@@ -74,40 +74,40 @@ class HeapNEWINSTANCE extends HeapUtil {
                            "com/foursquare/heapaudit/HeapUtil",
                            "record",
                            "(Ljava/lang/Object;ILjava/lang/String;J)V");
-	// STACK: [...|obj]
+        // STACK: [...|obj]
 
-	if (HeapSettings.conditional) {
+        if (HeapSettings.conditional) {
 
-	    visitCleanup(mv,
-			 cleanup,
-			 finish);
-	    // STACK: [...|count|class|obj]
-	    mv.visitInsn(Opcodes.SWAP);
-	    // STACK: [...|count|obj|class]
-	    mv.visitInsn(Opcodes.POP);
-	    // STACK: [...|count|obj]
-	    mv.visitInsn(Opcodes.SWAP);
-	    // STACK: [...|obj|count]
-	    mv.visitInsn(Opcodes.POP);
-	    // STACK: [...|obj]
-	    visitFinish(mv,
-			finish);
-	    // STACK: [...|obj]
+            visitCleanup(mv,
+                         cleanup,
+                         finish);
+            // STACK: [...|count|class|obj]
+            mv.visitInsn(Opcodes.SWAP);
+            // STACK: [...|count|obj|class]
+            mv.visitInsn(Opcodes.POP);
+            // STACK: [...|count|obj]
+            mv.visitInsn(Opcodes.SWAP);
+            // STACK: [...|obj|count]
+            mv.visitInsn(Opcodes.POP);
+            // STACK: [...|obj]
+            visitFinish(mv,
+                        finish);
+            // STACK: [...|obj]
 
-	}
+        }
 
     }
 
     public static void beforeX(boolean debug,
-			       boolean trace,
-			       MethodAdapter mv) {
+                               boolean trace,
+                               MethodAdapter mv) {
 
-	instrumentation(debug,
-			"\tNEWINSTANCE.beforeX");
+        instrumentation(debug,
+                        "\tNEWINSTANCE.beforeX");
 
-	execution(trace,
-		  mv,
-		  "\tNEWINSTANCE.beforeX");
+        execution(trace,
+                  mv,
+                  "\tNEWINSTANCE.beforeX");
 
         // STACK: [...|class|count]
         mv.visitInsn(Opcodes.SWAP);
@@ -120,28 +120,28 @@ class HeapNEWINSTANCE extends HeapUtil {
     }
 
     public static void afterY(boolean debug,
-			      boolean trace,
-			      MethodAdapter mv) {
+                              boolean trace,
+                              MethodAdapter mv) {
 
-	instrumentation(debug,
-			"\tNEWINSTANCE.afterY");
+        instrumentation(debug,
+                        "\tNEWINSTANCE.afterY");
 
-	execution(trace,
-		  mv,
-		  "\tNEWINSTANCE.afterY");
+        execution(trace,
+                  mv,
+                  "\tNEWINSTANCE.afterY");
 
         Label cleanup = new Label();
 
         Label finish = new Label();
 
-	if (HeapSettings.conditional) {
+        if (HeapSettings.conditional) {
 
-	    // STACK: [...|count|class|obj]
-	    visitCheck(mv,
-		       cleanup);
-	    // STACK: [...|count|class|obj]
+            // STACK: [...|count|class|obj]
+            visitCheck(mv,
+                       cleanup);
+            // STACK: [...|count|class|obj]
 
-	}
+        }
 
         // STACK: [...|count|class|obj]
         mv.visitInsn(Opcodes.DUP_X2);
@@ -159,27 +159,27 @@ class HeapNEWINSTANCE extends HeapUtil {
                            "com/foursquare/heapaudit/HeapUtil",
                            "record",
                            "(Ljava/lang/Object;[ILjava/lang/String;)V");
-	// STACK: [...|obj]
+        // STACK: [...|obj]
 
-	if (HeapSettings.conditional) {
+        if (HeapSettings.conditional) {
 
-	    visitCleanup(mv,
-			 cleanup,
-			 finish);
-	    // STACK: [...|count|class|obj]
-	    mv.visitInsn(Opcodes.SWAP);
-	    // STACK: [...|count|obj|class]
-	    mv.visitInsn(Opcodes.POP);
-	    // STACK: [...|count|obj]
-	    mv.visitInsn(Opcodes.SWAP);
-	    // STACK: [...|obj|count]
-	    mv.visitInsn(Opcodes.POP);
-	    // STACK: [...|obj]
-	    visitFinish(mv,
-			finish);
-	    // STACK: [...|obj]
+            visitCleanup(mv,
+                         cleanup,
+                         finish);
+            // STACK: [...|count|class|obj]
+            mv.visitInsn(Opcodes.SWAP);
+            // STACK: [...|count|obj|class]
+            mv.visitInsn(Opcodes.POP);
+            // STACK: [...|count|obj]
+            mv.visitInsn(Opcodes.SWAP);
+            // STACK: [...|obj|count]
+            mv.visitInsn(Opcodes.POP);
+            // STACK: [...|obj]
+            visitFinish(mv,
+                        finish);
+            // STACK: [...|obj]
 
-	}
+        }
 
     }
 

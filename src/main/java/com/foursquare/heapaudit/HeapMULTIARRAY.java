@@ -11,27 +11,27 @@ class HeapMULTIARRAY extends HeapUtil {
     // allocated multi-dimension array object.
 
     public static void after(boolean debug,
-			     boolean trace,
-			     MethodAdapter mv,
-			     String desc) {
+                             boolean trace,
+                             MethodAdapter mv,
+                             String desc) {
 
-	instrumentation(debug,
-			"\tMULTIARRAY.after(" + desc + ")");
+        instrumentation(debug,
+                        "\tMULTIARRAY.after(" + desc + ")");
 
-	execution(trace,
-		  mv,
-		  "\tMULTIARRAY.after(" + desc + ")");
+        execution(trace,
+                  mv,
+                  "\tMULTIARRAY.after(" + desc + ")");
 
-	Label finish = new Label();
+        Label finish = new Label();
 
-	if (HeapSettings.conditional) {
+        if (HeapSettings.conditional) {
 
-	    // STACK: [...|obj]
-	    visitCheck(mv,
-		       finish);
-	    // STACK: [...|obj]
+            // STACK: [...|obj]
+            visitCheck(mv,
+                       finish);
+            // STACK: [...|obj]
 
-	}
+        }
 
         // STACK: [...|obj]
         mv.visitInsn(Opcodes.DUP);
@@ -39,19 +39,19 @@ class HeapMULTIARRAY extends HeapUtil {
         mv.visitLdcInsn(desc);
         // STACK: [...|obj|obj|type]
         mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			   "com/foursquare/heapaudit/HeapUtil",
-			   "record",
-			   "(Ljava/lang/Object;Ljava/lang/String;)V");
-	// STACK: [...|obj]
+                           "com/foursquare/heapaudit/HeapUtil",
+                           "record",
+                           "(Ljava/lang/Object;Ljava/lang/String;)V");
+        // STACK: [...|obj]
 
-	if (HeapSettings.conditional) {
+        if (HeapSettings.conditional) {
 
-	    // STACK: [...|obj]
-	    visitFinish(mv,
-			finish);
-	    // STACK: [...|obj]
+            // STACK: [...|obj]
+            visitFinish(mv,
+                        finish);
+            // STACK: [...|obj]
 
-	}
+        }
 
     }
 

@@ -3,18 +3,18 @@ package com.foursquare.heapaudit;
 public class HeapActivity extends HeapRecorder {
 
     public void record(String type,
-		       int count,
-		       long size) {
+                       int count,
+                       long size) {
 
-	String length = "";
+        String length = "";
 
-	if (count >= 0) {
+        if (count >= 0) {
 
-	    length = "[" + count + "]";
+            length = "[" + count + "]";
 
-	}
+        }
 
-	System.out.println("new " + type + length + " (" + size + " bytes)");
+        System.out.println("new " + type + length + " (" + size + " bytes)");
 
     }
 

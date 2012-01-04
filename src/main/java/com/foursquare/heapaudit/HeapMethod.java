@@ -10,37 +10,37 @@ import org.objectweb.asm.Opcodes;
 public class HeapMethod extends HeapUtil implements MethodVisitor {
 
     public HeapMethod(MethodVisitor mv,
-		      String methodId,
-		      boolean debugAuditing,
-		      boolean traceAuditing,
-		      boolean injectRecorder,
-		      boolean removeRecorder) {
+                      String methodId,
+                      boolean debugAuditing,
+                      boolean traceAuditing,
+                      boolean injectRecorder,
+                      boolean removeRecorder) {
 
-	this.mv = new MethodAdapter(mv);
+        this.mv = new MethodAdapter(mv);
 
-	this.id = methodId;
+        this.id = methodId;
 
-	this.debugAuditing = debugAuditing;
+        this.debugAuditing = debugAuditing;
 
-	this.traceAuditing = traceAuditing;
+        this.traceAuditing = traceAuditing;
 
-	this.injectRecorder = injectRecorder;
+        this.injectRecorder = injectRecorder;
 
-	this.removeRecorder = removeRecorder;
+        this.removeRecorder = removeRecorder;
 
-	if (removeRecorder) {
+        if (removeRecorder) {
 
-	    HeapUtil.remove(id);
+            HeapUtil.remove(id);
 
-	}
-	else if (injectRecorder) {
+        }
+        else if (injectRecorder) {
 
-	    HeapUtil.inject(id);
+            HeapUtil.inject(id);
 
-	}
+        }
 
-	instrumentation(debugAuditing,
-			"\tMETHOD " + id);
+        instrumentation(debugAuditing,
+                        "\tMETHOD " + id);
 
     }
 
@@ -60,662 +60,662 @@ public class HeapMethod extends HeapUtil implements MethodVisitor {
 
     public AnnotationVisitor visitAnnotationDefault() {
 
-	instrumentation(debugAuditing,
-			"visitAnnotationDefault()");
+        instrumentation(debugAuditing,
+                        "visitAnnotationDefault()");
 
-	return mv.visitAnnotationDefault();
+        return mv.visitAnnotationDefault();
 
     }
 
     public AnnotationVisitor visitAnnotation(String desc,
-					     boolean visible) {
+                                             boolean visible) {
 
-	instrumentation(debugAuditing,
-			"visitAnnotation()");
+        instrumentation(debugAuditing,
+                        "visitAnnotation()");
 
-	return mv.visitAnnotation(desc,
-				  visible);
+        return mv.visitAnnotation(desc,
+                                  visible);
 
     }
 
     public AnnotationVisitor visitParameterAnnotation(int parameter,
-						      String desc,
-						      boolean visible) {
+                                                      String desc,
+                                                      boolean visible) {
 
-	instrumentation(debugAuditing,
-			"visitParameterAnnotation()");
+        instrumentation(debugAuditing,
+                        "visitParameterAnnotation()");
 
-	return mv.visitParameterAnnotation(parameter,
-					   desc,
-					   visible);
+        return mv.visitParameterAnnotation(parameter,
+                                           desc,
+                                           visible);
     }
 
     public void visitAttribute(Attribute attr) {
 
-	instrumentation(debugAuditing,
-			"visitAttribute(" + attr.type + ")");
+        instrumentation(debugAuditing,
+                        "visitAttribute(" + attr.type + ")");
 
-	mv.visitAttribute(attr);
+        mv.visitAttribute(attr);
 
     }
 
     public void visitCode() {
 
-	instrumentation(debugAuditing,
-			"visitCode()");
+        instrumentation(debugAuditing,
+                        "visitCode()");
 
-	mv.visitCode();
+        mv.visitCode();
 
-	execution(traceAuditing,
-		  mv,
-		  "visitCode()");
+        execution(traceAuditing,
+                  mv,
+                  "visitCode()");
 
-	visitEnter();
+        visitEnter();
 
     }
 
     public void visitFrame(int type,
-			   int nLocal,
-			   Object[] local,
-			   int nStack,
-			   Object[] stack) {
+                           int nLocal,
+                           Object[] local,
+                           int nStack,
+                           Object[] stack) {
 
-	instrumentation(debugAuditing,
-			"visitFrame()");
+        instrumentation(debugAuditing,
+                        "visitFrame()");
 
-	execution(traceAuditing,
-		  mv,
-		  "visitFrame()");
+        execution(traceAuditing,
+                  mv,
+                  "visitFrame()");
 
-	mv.visitFrame(type,
-		      nLocal,
-		      local,
-		      nStack,
-		      stack);
+        mv.visitFrame(type,
+                      nLocal,
+                      local,
+                      nStack,
+                      stack);
 
     }
 
     public void visitInsn(int opcode) {
 
-	instrumentation(debugAuditing,
-			"visitInsn(" + opcode + ")");
+        instrumentation(debugAuditing,
+                        "visitInsn(" + opcode + ")");
 
-	execution(traceAuditing,
-		  mv,
-		  "visitInsn(" + opcode + ")");
+        execution(traceAuditing,
+                  mv,
+                  "visitInsn(" + opcode + ")");
 
-	switch (opcode) {
+        switch (opcode) {
 
-	case Opcodes.ARETURN:
+        case Opcodes.ARETURN:
 
-	case Opcodes.DRETURN:
+        case Opcodes.DRETURN:
 
-	case Opcodes.FRETURN:
+        case Opcodes.FRETURN:
 
-	case Opcodes.IRETURN:
+        case Opcodes.IRETURN:
 
-	case Opcodes.LRETURN:
+        case Opcodes.LRETURN:
 
-	case Opcodes.RETURN:
+        case Opcodes.RETURN:
 
-	    visitReturn();
+            visitReturn();
 
-	    break;
+            break;
 
-	}
+        }
 
-	mv.visitInsn(opcode);
+        mv.visitInsn(opcode);
 
     }
 
     public void visitLdcInsn(Object cst) {
 
-	instrumentation(debugAuditing,
-			"visitLdcInsn(" + cst + ")");
+        instrumentation(debugAuditing,
+                        "visitLdcInsn(" + cst + ")");
 
-	execution(traceAuditing,
-		  mv,
-		  "visitLdcInsn(" + cst + ")");
+        execution(traceAuditing,
+                  mv,
+                  "visitLdcInsn(" + cst + ")");
 
-	mv.visitLdcInsn(cst);
+        mv.visitLdcInsn(cst);
 
     }
 
     public void visitIincInsn(int var,
-			      int increment) {
+                              int increment) {
 
-	instrumentation(debugAuditing,
-			"visitIincInsn()");
+        instrumentation(debugAuditing,
+                        "visitIincInsn()");
 
-	execution(traceAuditing,
-		  mv,
-		  "visitIincInsn()");
+        execution(traceAuditing,
+                  mv,
+                  "visitIincInsn()");
 
-	mv.visitIincInsn(var,
-			 increment);
+        mv.visitIincInsn(var,
+                         increment);
 
     }
 
     public void visitVarInsn(int opcode,
-			     int var) {
+                             int var) {
 
-	instrumentation(debugAuditing,
-			"visitVarInsn(" + opcode + ", " + var + ")");
+        instrumentation(debugAuditing,
+                        "visitVarInsn(" + opcode + ", " + var + ")");
 
-	execution(traceAuditing,
-		  mv,
-		  "visitVarInsn(" + opcode + ", " + var + ")");
+        execution(traceAuditing,
+                  mv,
+                  "visitVarInsn(" + opcode + ", " + var + ")");
 
-	switch (opcode) {
+        switch (opcode) {
 
-	case Opcodes.RET:
+        case Opcodes.RET:
 
-	    visitReturn();
+            visitReturn();
 
-	    break;
+            break;
 
-	}
+        }
 
-	mv.visitVarInsn(opcode,
-			var);
+        mv.visitVarInsn(opcode,
+                        var);
 
     }
 
     public void visitFieldInsn(int opcode,
-			       String owner,
-			       String name,
-			       String desc) {
+                               String owner,
+                               String name,
+                               String desc) {
 
-	instrumentation(debugAuditing,
-			"visitFieldInsn(" + opcode + ", " + owner + ", " + name + ", " + desc + ")");
+        instrumentation(debugAuditing,
+                        "visitFieldInsn(" + opcode + ", " + owner + ", " + name + ", " + desc + ")");
 
-	execution(traceAuditing,
-		  mv,
-		  "visitFieldInsn(" + opcode + ", " + owner + ", " + name + ", " + desc + ")");
+        execution(traceAuditing,
+                  mv,
+                  "visitFieldInsn(" + opcode + ", " + owner + ", " + name + ", " + desc + ")");
 
-	mv.visitFieldInsn(opcode,
-			  owner,
-			  name,
-			  desc);
+        mv.visitFieldInsn(opcode,
+                          owner,
+                          name,
+                          desc);
 
     }
 
     public void visitIntInsn(int opcode,
-			     int operand) {
+                             int operand) {
 
-	instrumentation(debugAuditing,
-			"visitIntInsn(" + opcode + ", " + operand + ")");
+        instrumentation(debugAuditing,
+                        "visitIntInsn(" + opcode + ", " + operand + ")");
 
-	execution(traceAuditing,
-		  mv,
-		  "visitIntInsn(" + opcode + ", " + operand + ")");
+        execution(traceAuditing,
+                  mv,
+                  "visitIntInsn(" + opcode + ", " + operand + ")");
 
-	switch (opcode) {
+        switch (opcode) {
 
-	case Opcodes.NEWARRAY:
+        case Opcodes.NEWARRAY:
 
-	    HeapNEWARRAY.before(debugAuditing,
-				traceAuditing,
-				mv,
-				operand);
+            HeapNEWARRAY.before(debugAuditing,
+                                traceAuditing,
+                                mv,
+                                operand);
 
-	    break;
+            break;
 
-	default:
+        default:
 
-	}
+        }
 
-	mv.visitIntInsn(opcode,
-			operand);
+        mv.visitIntInsn(opcode,
+                        operand);
 
-	switch (opcode) {
+        switch (opcode) {
 
-	case Opcodes.NEWARRAY:
+        case Opcodes.NEWARRAY:
 
-	    HeapNEWARRAY.after(debugAuditing,
-			       traceAuditing,
-			       mv,
-			       operand);
+            HeapNEWARRAY.after(debugAuditing,
+                               traceAuditing,
+                               mv,
+                               operand);
 
-	    break;
+            break;
 
-	default:
+        default:
 
-	}
+        }
 
     }
 
     private int allocating = 0;
 
     public void visitTypeInsn(int opcode,
-			      String type) {
+                              String type) {
 
-	instrumentation(debugAuditing,
-			"visitTypeInsn(" + opcode + ", " + type + ")");
+        instrumentation(debugAuditing,
+                        "visitTypeInsn(" + opcode + ", " + type + ")");
 
-	execution(traceAuditing,
-		  mv,
-		  "visitTypeInsn(" + opcode + ", " + type + ")");
+        execution(traceAuditing,
+                  mv,
+                  "visitTypeInsn(" + opcode + ", " + type + ")");
 
-	switch (opcode) {
+        switch (opcode) {
 
-	case Opcodes.NEW:
+        case Opcodes.NEW:
 
-	    ++allocating;
+            ++allocating;
 
-	    break;
+            break;
 
-	case Opcodes.ANEWARRAY:
+        case Opcodes.ANEWARRAY:
 
-	    HeapANEWARRAY.before(debugAuditing,
-				 traceAuditing,
-				 mv,
-				 type);
+            HeapANEWARRAY.before(debugAuditing,
+                                 traceAuditing,
+                                 mv,
+                                 type);
 
-	    break;
+            break;
 
-	default:
+        default:
 
-	}
+        }
 
-	mv.visitTypeInsn(opcode,
-			 type);
+        mv.visitTypeInsn(opcode,
+                         type);
 
-	switch (opcode) {
+        switch (opcode) {
 
-	case Opcodes.ANEWARRAY:
+        case Opcodes.ANEWARRAY:
 
-	    HeapANEWARRAY.after(debugAuditing,
-				traceAuditing,
-				mv,
-				type);
+            HeapANEWARRAY.after(debugAuditing,
+                                traceAuditing,
+                                mv,
+                                type);
 
-	    break;
+            break;
 
-	default:
+        default:
 
-	}
+        }
 
     }
 
     public void visitMethodInsn(int opcode,
-				String owner,
-				String name,
-				String signature) {
+                                String owner,
+                                String name,
+                                String signature) {
 
-	instrumentation(debugAuditing,
-			"visitMethodInsn(" + opcode + ", " + owner + ", " + name + ", " + signature + ")");
+        instrumentation(debugAuditing,
+                        "visitMethodInsn(" + opcode + ", " + owner + ", " + name + ", " + signature + ")");
 
-	execution(traceAuditing,
-		  mv,
-		  "visitMethodInsn(" + opcode + ", " + owner + ", " + name + ", " + signature + ")");
+        execution(traceAuditing,
+                  mv,
+                  "visitMethodInsn(" + opcode + ", " + owner + ", " + name + ", " + signature + ")");
 
-	switch (opcode) {
+        switch (opcode) {
 
-	case Opcodes.INVOKESPECIAL:
+        case Opcodes.INVOKESPECIAL:
 
-	    if (name.equals("<init>")) {
+            if (name.equals("<init>")) {
 
-		if (allocating > 0) {
+                if (allocating > 0) {
 
-		    HeapNEW.before(debugAuditing,
-				   traceAuditing,
-				   mv,
-				   lvs,
-				   signature);
+                    HeapNEW.before(debugAuditing,
+                                   traceAuditing,
+                                   mv,
+                                   lvs,
+                                   signature);
 
-		}
+                }
 
-	    }
+            }
 
-	    break;
+            break;
 
-	case Opcodes.INVOKESTATIC:
+        case Opcodes.INVOKESTATIC:
 
-	    if (owner.equals("java/lang/reflect/Array") &&
-		name.equals("newInstance")) {
+            if (owner.equals("java/lang/reflect/Array") &&
+                name.equals("newInstance")) {
 
-		HeapNEWINSTANCE.beforeX(debugAuditing,
-					traceAuditing,
-					mv);
+                HeapNEWINSTANCE.beforeX(debugAuditing,
+                                        traceAuditing,
+                                        mv);
 
-	    }
-	    else if (removeRecorder &&
-		     owner.equals("com/foursquare/heapaudit/HeapUtil") &&
-		     name.endsWith("register")) {
+            }
+            else if (removeRecorder &&
+                     owner.equals("com/foursquare/heapaudit/HeapUtil") &&
+                     name.endsWith("register")) {
 
-		// STACK: [...|id]
-		mv.visitInsn(Opcodes.POP);
-		// STACK: [...]
+                // STACK: [...|id]
+                mv.visitInsn(Opcodes.POP);
+                // STACK: [...]
 
-		return;
+                return;
 
-	    }
+            }
 
-	    break;
+            break;
 
-	case Opcodes.INVOKEVIRTUAL:
+        case Opcodes.INVOKEVIRTUAL:
 
-	    if (name.equals("newInstance")) {
+            if (name.equals("newInstance")) {
 
-		if (owner.equals("java/lang/Class") &&
-		    signature.equals("()Ljava/lang/Object;")) {
+                if (owner.equals("java/lang/Class") &&
+                    signature.equals("()Ljava/lang/Object;")) {
 
-		    HeapNEWINSTANCE.before(debugAuditing,
-					   traceAuditing,
-					   mv);
+                    HeapNEWINSTANCE.before(debugAuditing,
+                                           traceAuditing,
+                                           mv);
 
-		}
+                }
 
-	    }
+            }
 
-	    break;
+            break;
 
-	default:
+        default:
 
-	}
+        }
 
-	mv.visitMethodInsn(opcode,
-			   owner,
-			   name,
-			   signature);
+        mv.visitMethodInsn(opcode,
+                           owner,
+                           name,
+                           signature);
 
-	switch (opcode) {
+        switch (opcode) {
 
-	case Opcodes.INVOKESPECIAL:
+        case Opcodes.INVOKESPECIAL:
 
-	    if (name.equals("<init>")) {
+            if (name.equals("<init>")) {
 
-		if (allocating > 0) {
+                if (allocating > 0) {
 
-		    --allocating;
+                    --allocating;
 
-		    HeapNEW.after(debugAuditing,
-				  traceAuditing,
-				  mv,
-				  owner);
+                    HeapNEW.after(debugAuditing,
+                                  traceAuditing,
+                                  mv,
+                                  owner);
 
-		}
+                }
 
-	    }
-	    else if (owner.equals("java/lang/Object") &&
-		     name.equals("clone")) {
+            }
+            else if (owner.equals("java/lang/Object") &&
+                     name.equals("clone")) {
 
-		HeapCLONEOBJECT.after(debugAuditing,
-				      traceAuditing,
-				      mv);
+                HeapCLONEOBJECT.after(debugAuditing,
+                                      traceAuditing,
+                                      mv);
 
-	    }
+            }
 
-	    break;
+            break;
 
-	case Opcodes.INVOKESTATIC:
+        case Opcodes.INVOKESTATIC:
 
-	    if (owner.equals("java/lang/reflect/Array") &&
-		name.equals("newInstance")) {
+            if (owner.equals("java/lang/reflect/Array") &&
+                name.equals("newInstance")) {
 
-		if (signature.equals("(Ljava/lang/Class;I)Ljava/lang/Object;")) {
+                if (signature.equals("(Ljava/lang/Class;I)Ljava/lang/Object;")) {
 
-		    HeapNEWINSTANCE.after(debugAuditing,
-					  traceAuditing,
-					  mv);
+                    HeapNEWINSTANCE.after(debugAuditing,
+                                          traceAuditing,
+                                          mv);
 
-		}
-		else if (signature.equals("(Ljava/lang/Class;[I)Ljava/lang/Object;")) {
+                }
+                else if (signature.equals("(Ljava/lang/Class;[I)Ljava/lang/Object;")) {
 
-		    HeapNEWINSTANCE.afterY(debugAuditing,
-					   traceAuditing,
-					   mv);
+                    HeapNEWINSTANCE.afterY(debugAuditing,
+                                           traceAuditing,
+                                           mv);
 
-		}
+                }
 
-	    }
+            }
 
-	    break;
+            break;
 
-	case Opcodes.INVOKEVIRTUAL:
+        case Opcodes.INVOKEVIRTUAL:
 
-	    if (name.equals("newInstance")) {
+            if (name.equals("newInstance")) {
 
-		if (owner.equals("java/lang/Class") &&
-		    signature.equals("()Ljava/lang/Object;")) {
+                if (owner.equals("java/lang/Class") &&
+                    signature.equals("()Ljava/lang/Object;")) {
 
-		    HeapNEWINSTANCE.after(debugAuditing,
-					  traceAuditing,
-					  mv);
+                    HeapNEWINSTANCE.after(debugAuditing,
+                                          traceAuditing,
+                                          mv);
 
-		}
-		else if (owner.equals("java/lang/reflect/Constructor") &&
-			 signature.equals("([Ljava/lang/Object;)Ljava/lang/Object;")) {
+                }
+                else if (owner.equals("java/lang/reflect/Constructor") &&
+                         signature.equals("([Ljava/lang/Object;)Ljava/lang/Object;")) {
 
-		    HeapCLONEOBJECT.after(debugAuditing,
-					  traceAuditing,
-					  mv);
+                    HeapCLONEOBJECT.after(debugAuditing,
+                                          traceAuditing,
+                                          mv);
 
-		}
+                }
 
-	    }
-	    else if (owner.startsWith("[") &&
-		     name.equals("clone")) {
+            }
+            else if (owner.startsWith("[") &&
+                     name.equals("clone")) {
 
-		HeapCLONEARRAY.after(debugAuditing,
-				     traceAuditing,
-				     mv,
-				     owner);
+                HeapCLONEARRAY.after(debugAuditing,
+                                     traceAuditing,
+                                     mv,
+                                     owner);
 
-	    }
+            }
 
-	    break;
+            break;
 
-	default:
+        default:
 
-	}
+        }
 
     }
 
     public void visitMultiANewArrayInsn(String desc,
-					int dims) {
+                                        int dims) {
 
-	instrumentation(debugAuditing,
-			"visitMultiANewArrayInsn(" + desc + ", " + dims + ")");
+        instrumentation(debugAuditing,
+                        "visitMultiANewArrayInsn(" + desc + ", " + dims + ")");
 
-	execution(traceAuditing,
-		  mv,
-		  "visitMultiANewArrayInsn(" + desc + ", " + dims + ")");
+        execution(traceAuditing,
+                  mv,
+                  "visitMultiANewArrayInsn(" + desc + ", " + dims + ")");
 
-	mv.visitMultiANewArrayInsn(desc,
-				   dims);
+        mv.visitMultiANewArrayInsn(desc,
+                                   dims);
 
-	HeapMULTIARRAY.after(debugAuditing,
-			     traceAuditing,
-			     mv,
-			     desc);
+        HeapMULTIARRAY.after(debugAuditing,
+                             traceAuditing,
+                             mv,
+                             desc);
 
     }
 
     public void visitJumpInsn(int opcode,
-			      Label label) {
+                              Label label) {
 
-	instrumentation(debugAuditing,
-			"visitJumpInsn(" + opcode + ", " + label + ")");
+        instrumentation(debugAuditing,
+                        "visitJumpInsn(" + opcode + ", " + label + ")");
 
-	execution(traceAuditing,
-		  mv,
-		  "visitJumpInsn(" + opcode + ", " + label + ")");
+        execution(traceAuditing,
+                  mv,
+                  "visitJumpInsn(" + opcode + ", " + label + ")");
 
         mv.visitJumpInsn(opcode,
-			 label);
+                         label);
 
     }
 
     public void visitLookupSwitchInsn(Label dlft,
-				      int[] keys,
-				      Label[] labels) {
+                                      int[] keys,
+                                      Label[] labels) {
 
-	instrumentation(debugAuditing,
-			"visitLookupSwitchInsn()");
+        instrumentation(debugAuditing,
+                        "visitLookupSwitchInsn()");
 
-	execution(traceAuditing,
-		  mv,
-		  "visitLookupSwitchInsn()");
+        execution(traceAuditing,
+                  mv,
+                  "visitLookupSwitchInsn()");
 
-	mv.visitLookupSwitchInsn(dlft,
-				 keys,
-				 labels);
+        mv.visitLookupSwitchInsn(dlft,
+                                 keys,
+                                 labels);
 
     }
 
     public void visitTableSwitchInsn(int min,
-				     int max,
-				     Label dlft,
-				     Label[] labels) {
+                                     int max,
+                                     Label dlft,
+                                     Label[] labels) {
 
-	instrumentation(debugAuditing,
-			"visitTableSwitchInsn()");
+        instrumentation(debugAuditing,
+                        "visitTableSwitchInsn()");
 
-	execution(traceAuditing,
-		  mv,
-		  "visitTableSwitchInsn()");
+        execution(traceAuditing,
+                  mv,
+                  "visitTableSwitchInsn()");
 
-	mv.visitTableSwitchInsn(min,
-				max,
-				dlft,
-				labels);
+        mv.visitTableSwitchInsn(min,
+                                max,
+                                dlft,
+                                labels);
 
     }
 
     public void visitLabel(Label label) {
 
-	instrumentation(debugAuditing,
-			"visitLabel(" + label + ")");
+        instrumentation(debugAuditing,
+                        "visitLabel(" + label + ")");
 
-	execution(traceAuditing,
-		  mv,
-		  "visitLabel(" + label + ")");
+        execution(traceAuditing,
+                  mv,
+                  "visitLabel(" + label + ")");
 
-	mv.visitLabel(label);
+        mv.visitLabel(label);
 
     }
 
     public void visitTryCatchBlock(Label start,
-				   Label end,
-				   Label handler,
-				   String type) {
+                                   Label end,
+                                   Label handler,
+                                   String type) {
 
-	instrumentation(debugAuditing,
-			"visitTryCatchBlock()");
+        instrumentation(debugAuditing,
+                        "visitTryCatchBlock()");
 
-	execution(traceAuditing,
-		  mv,
-		  "visitTryCatchBlock()");
+        execution(traceAuditing,
+                  mv,
+                  "visitTryCatchBlock()");
 
-	mv.visitTryCatchBlock(start,
-			      end,
-			      handler,
-			      type);
+        mv.visitTryCatchBlock(start,
+                              end,
+                              handler,
+                              type);
 
     }
 
 
     public void visitLocalVariable(String name,
-				   String desc,
-				   String signature,
-				   Label start,
-				   Label end,
-				   int index) {
+                                   String desc,
+                                   String signature,
+                                   Label start,
+                                   Label end,
+                                   int index) {
 
-	instrumentation(debugAuditing,
-			"visitLocalVariable(" + name + ")");
+        instrumentation(debugAuditing,
+                        "visitLocalVariable(" + name + ")");
 
-	execution(traceAuditing,
-		  mv,
-		  "visitLocalVariable(" + name + ")");
+        execution(traceAuditing,
+                  mv,
+                  "visitLocalVariable(" + name + ")");
 
-	mv.visitLocalVariable(name,
-			      desc,
-			      signature,
-			      start,
-			      end,
-			      index);
+        mv.visitLocalVariable(name,
+                              desc,
+                              signature,
+                              start,
+                              end,
+                              index);
 
     }
 
     public void visitLineNumber(int line,
-				Label start) {
+                                Label start) {
 
-	instrumentation(debugAuditing,
-			"visitLineNumber(" + start + "#" + line + ")");
+        instrumentation(debugAuditing,
+                        "visitLineNumber(" + start + "#" + line + ")");
 
-	execution(traceAuditing,
-		  mv,
-		  "visitLineNumber(" + start + "#" + line + ")");
+        execution(traceAuditing,
+                  mv,
+                  "visitLineNumber(" + start + "#" + line + ")");
 
-	mv.visitLineNumber(line,
-			      start);
+        mv.visitLineNumber(line,
+                              start);
 
     }
 
     public void visitMaxs(int maxStack,
-			  int maxLocals) {
+                          int maxLocals) {
 
-	instrumentation(debugAuditing,
-			"visitMaxs(" + maxStack + ", " + maxLocals + ")");
+        instrumentation(debugAuditing,
+                        "visitMaxs(" + maxStack + ", " + maxLocals + ")");
 
-	execution(traceAuditing,
-		  mv,
-		  "visitMaxs(" + maxStack + ", " + maxLocals + ")");
+        execution(traceAuditing,
+                  mv,
+                  "visitMaxs(" + maxStack + ", " + maxLocals + ")");
 
-	lvs.declare();
+        lvs.declare();
 
-	mv.visitMaxs(maxStack,
-		     maxLocals);
+        mv.visitMaxs(maxStack,
+                     maxLocals);
 
     }
 
     public void visitEnd() {
 
-	instrumentation(debugAuditing,
-			"visitEnd()");
+        instrumentation(debugAuditing,
+                        "visitEnd()");
 
-	execution(traceAuditing,
-		  mv,
-		  "visitEnd()");
+        execution(traceAuditing,
+                  mv,
+                  "visitEnd()");
 
-	mv.visitEnd();
+        mv.visitEnd();
 
     }
 
     private void visitEnter() {
 
-	if (injectRecorder) {
+        if (injectRecorder) {
 
-	    // STACK: [...]
-	    mv.visitLdcInsn(id);
-	    // STACK: [...|id]
-	    mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			       "com/foursquare/heapaudit/HeapUtil",
-			       "register",
-			       "(Ljava/lang/String;)V");
-	    // STACK: [...]
+            // STACK: [...]
+            mv.visitLdcInsn(id);
+            // STACK: [...|id]
+            mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                               "com/foursquare/heapaudit/HeapUtil",
+                               "register",
+                               "(Ljava/lang/String;)V");
+            // STACK: [...]
 
-	}
+        }
 
     }
 
     private void visitReturn() {
 
-	if (injectRecorder) {
+        if (injectRecorder) {
 
-	    // STACK: [...]
-	    mv.visitLdcInsn(id);
-	    // STACK: [...|id]
-	    mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			       "com/foursquare/heapaudit/HeapUtil",
-			       "unregister",
-			       "(Ljava/lang/String;)V");
-	    // STACK: [...]
+            // STACK: [...]
+            mv.visitLdcInsn(id);
+            // STACK: [...|id]
+            mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                               "com/foursquare/heapaudit/HeapUtil",
+                               "unregister",
+                               "(Ljava/lang/String;)V");
+            // STACK: [...]
 
-	}
+        }
 
     }
 

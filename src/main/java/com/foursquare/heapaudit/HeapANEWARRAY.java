@@ -11,16 +11,16 @@ class HeapANEWARRAY extends HeapUtil {
     // returns a reference to the newly allocated array object.
 
     public static void before(boolean debug,
-			      boolean trace,
-			      MethodAdapter mv,
-			      String type) {
+                              boolean trace,
+                              MethodAdapter mv,
+                              String type) {
 
-	instrumentation(debug,
-			"\tANEWARRAY.before(" + type + ")");
+        instrumentation(debug,
+                        "\tANEWARRAY.before(" + type + ")");
 
-	execution(trace,
-		  mv,
-		  "\tANEWARRAY.before(" + type + ")");
+        execution(trace,
+                  mv,
+                  "\tANEWARRAY.before(" + type + ")");
 
         // STACK: [...|count]
         mv.visitInsn(Opcodes.DUP);
@@ -29,29 +29,29 @@ class HeapANEWARRAY extends HeapUtil {
     }
 
     public static void after(boolean debug,
-			     boolean trace,
-			     MethodAdapter mv,
-			     String type) {
+                             boolean trace,
+                             MethodAdapter mv,
+                             String type) {
 
-	instrumentation(debug,
-			"\tANEWARRAY.after(" + type + ")");
+        instrumentation(debug,
+                        "\tANEWARRAY.after(" + type + ")");
 
-	execution(trace,
-		  mv,
-		  "\tANEWARRAY.after(" + type + ")");
+        execution(trace,
+                  mv,
+                  "\tANEWARRAY.after(" + type + ")");
 
-	Label cleanup = new Label();
+        Label cleanup = new Label();
 
-	Label finish = new Label();
+        Label finish = new Label();
 
-	if (HeapSettings.conditional) {
+        if (HeapSettings.conditional) {
 
-	    // STACK: [...|count|obj]
-	    visitCheck(mv,
-		       cleanup);
-	    // STACK: [...|count|obj]
+            // STACK: [...|count|obj]
+            visitCheck(mv,
+                       cleanup);
+            // STACK: [...|count|obj]
 
-	}
+        }
 
         // STACK: [...|count|obj]
         mv.visitInsn(Opcodes.DUP_X1);
@@ -68,21 +68,21 @@ class HeapANEWARRAY extends HeapUtil {
                            "(Ljava/lang/Object;ILjava/lang/String;J)V");
         // STACK: [...|obj]
 
-	if (HeapSettings.conditional) {
+        if (HeapSettings.conditional) {
 
-	    visitCleanup(mv,
-			 cleanup,
-			 finish);
-	    // STACK: [...|count|obj]
-	    mv.visitInsn(Opcodes.SWAP);
-	    // STACK: [...|obj|count]
-	    mv.visitInsn(Opcodes.POP);
-	    // STACK: [...|obj]
-	    visitFinish(mv,
-			finish);
-	    // STACK: [...|obj]
+            visitCleanup(mv,
+                         cleanup,
+                         finish);
+            // STACK: [...|count|obj]
+            mv.visitInsn(Opcodes.SWAP);
+            // STACK: [...|obj|count]
+            mv.visitInsn(Opcodes.POP);
+            // STACK: [...|obj]
+            visitFinish(mv,
+                        finish);
+            // STACK: [...|obj]
 
-	}
+        }
 
     }
 

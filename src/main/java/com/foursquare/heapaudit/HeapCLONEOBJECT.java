@@ -13,62 +13,62 @@ class HeapCLONEOBJECT extends HeapUtil {
     // newly allocated object.
 
     public static void after(boolean debug,
-			     boolean trace,
-			     MethodAdapter mv) {
+                             boolean trace,
+                             MethodAdapter mv) {
 
-	instrumentation(debug,
-			"\tCOPYINSTANCE.after... VERIFY!");
+        instrumentation(debug,
+                        "\tCOPYINSTANCE.after... VERIFY!");
 
-	execution(trace,
-		  mv,
-		  "\tCOPYINSTANCE.after");
+        execution(trace,
+                  mv,
+                  "\tCOPYINSTANCE.after");
 
-	Label finish = new Label();
+        Label finish = new Label();
 
-	if (HeapSettings.conditional) {
+        if (HeapSettings.conditional) {
 
-	    // STACK: [...|obj]
-	    visitCheck(mv,
-		       finish);
-	    // STACK: [...|obj]
+            // STACK: [...|obj]
+            visitCheck(mv,
+                       finish);
+            // STACK: [...|obj]
 
-	}
+        }
 
-	// STACK: [...|obj]
-	mv.visitInsn(Opcodes.DUP);
-	// STACK: [...|obj|obj]
-	mv.visitInsn(Opcodes.DUP);
-	// STACK: [...|obj|obj|obj]
-	mv.visitLdcInsn(-1);
-	// STACK: [...|obj|obj|obj|count]
-	mv.visitInsn(Opcodes.SWAP);
-	// STACK: [...|obj|obj|count|obj]
-	mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-			   "java/lang/Object",
-			   "getClass",
-			   "()Ljava/lang/Class;");
-	// STACK: [...|obj|obj|count|class]
-	mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-			   "java/lang/Class",
-			   "getName",
-			   "()Ljava/lang/String;");
-	// STACK: [...|obj|obj|count|type]
-	mv.visitLdcInsn((long)-1);
-	// STACK: [...|obj|obj|count|type|size]
-	mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			   "com/foursquare/heapaudit/HeapUtil",
-			   "record",
-			   "(Ljava/lang/Object;ILjava/lang/String;J)V");
-	// STACK: [...|obj]
+        // STACK: [...|obj]
+        mv.visitInsn(Opcodes.DUP);
+        // STACK: [...|obj|obj]
+        mv.visitInsn(Opcodes.DUP);
+        // STACK: [...|obj|obj|obj]
+        mv.visitLdcInsn(-1);
+        // STACK: [...|obj|obj|obj|count]
+        mv.visitInsn(Opcodes.SWAP);
+        // STACK: [...|obj|obj|count|obj]
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                           "java/lang/Object",
+                           "getClass",
+                           "()Ljava/lang/Class;");
+        // STACK: [...|obj|obj|count|class]
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                           "java/lang/Class",
+                           "getName",
+                           "()Ljava/lang/String;");
+        // STACK: [...|obj|obj|count|type]
+        mv.visitLdcInsn((long)-1);
+        // STACK: [...|obj|obj|count|type|size]
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                           "com/foursquare/heapaudit/HeapUtil",
+                           "record",
+                           "(Ljava/lang/Object;ILjava/lang/String;J)V");
+        // STACK: [...|obj]
 
-	if (HeapSettings.conditional) {
+        if (HeapSettings.conditional) {
 
-	    // STACK: [...|obj]
-	    visitFinish(mv,
-			finish);
-	    // STACK: [...|obj]
+            // STACK: [...|obj]
+            visitFinish(mv,
+                        finish);
+            // STACK: [...|obj]
 
-	}
+        }
 
     }
 

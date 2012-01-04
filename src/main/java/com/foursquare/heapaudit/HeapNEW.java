@@ -20,109 +20,109 @@ class HeapNEW extends HeapUtil {
     // constructor arguments.
 
     public static void before(boolean debug,
-			      boolean trace,
-			      MethodAdapter mv,
-			      HeapVariables lvs,
-			      String signature) {
+                              boolean trace,
+                              MethodAdapter mv,
+                              HeapVariables lvs,
+                              String signature) {
 
-	instrumentation(debug,
-			"\tNEW.before");
+        instrumentation(debug,
+                        "\tNEW.before");
 
-	execution(trace,
-		  mv,
-		  "\tNEW.before");
+        execution(trace,
+                  mv,
+                  "\tNEW.before");
 
-	Type[] args = Type.getArgumentTypes(signature);
+        Type[] args = Type.getArgumentTypes(signature);
 
-	int[] vars = new int[args.length];
+        int[] vars = new int[args.length];
 
-	Label start = new Label();
+        Label start = new Label();
 
-	Label end = new Label();
+        Label end = new Label();
 
-	mv.visitLabel(start);
+        mv.visitLabel(start);
 
-	for (int i = args.length - 1; i >= 0; --i) {
+        for (int i = args.length - 1; i >= 0; --i) {
 
-	    vars[i] = lvs.define(args[i],
-				 start,
-				 end);
+            vars[i] = lvs.define(args[i],
+                                 start,
+                                 end);
 
-	    // STACK [...|obj|...|arg]
-	    mv.visitVarInsn(args[i].getOpcode(Opcodes.ISTORE),
-			    vars[i]);
-	    // STACK [...|obj|...]
+            // STACK [...|obj|...|arg]
+            mv.visitVarInsn(args[i].getOpcode(Opcodes.ISTORE),
+                            vars[i]);
+            // STACK [...|obj|...]
 
-	}
+        }
 
-	// STACK [...|obj]
-	mv.visitInsn(Opcodes.DUP);
-	// STACK [...|obj|obj]
+        // STACK [...|obj]
+        mv.visitInsn(Opcodes.DUP);
+        // STACK [...|obj|obj]
 
-	for (int i = 0; i < args.length; ++i) {
+        for (int i = 0; i < args.length; ++i) {
 
-	    // STACK [...|obj|obj|...]
-	    mv.visitVarInsn(args[i].getOpcode(Opcodes.ILOAD),
-			    vars[i]);
-	    // STACK [...|obj|obj|...|arg]
+            // STACK [...|obj|obj|...]
+            mv.visitVarInsn(args[i].getOpcode(Opcodes.ILOAD),
+                            vars[i]);
+            // STACK [...|obj|obj|...|arg]
 
-	}
+        }
 
-	mv.visitLabel(end);
+        mv.visitLabel(end);
 
     }
 
     public static void after(boolean debug,
-			     boolean trace,
-			     MethodAdapter mv,
-			     String owner) {
+                             boolean trace,
+                             MethodAdapter mv,
+                             String owner) {
 
-	instrumentation(debug,
-			"\tNEW.after");
+        instrumentation(debug,
+                        "\tNEW.after");
 
-	execution(trace,
-		  mv,
-		  "\tNEW.after");
+        execution(trace,
+                  mv,
+                  "\tNEW.after");
 
-	Label cleanup = new Label();
+        Label cleanup = new Label();
 
-	Label finish = new Label();
+        Label finish = new Label();
 
-	if (HeapSettings.conditional) {
+        if (HeapSettings.conditional) {
 
-	    // STACK: [...|obj]
-	    visitCheck(mv,
-		       cleanup);
-	    // STACK: [...|obj]
+            // STACK: [...|obj]
+            visitCheck(mv,
+                       cleanup);
+            // STACK: [...|obj]
 
-	}
+        }
 
-	// STACK: [...|obj]
-	mv.visitLdcInsn(-1);
-	// STACK: [...|obj|count]
-	mv.visitLdcInsn(owner);
+        // STACK: [...|obj]
+        mv.visitLdcInsn(-1);
+        // STACK: [...|obj|count]
+        mv.visitLdcInsn(owner);
         // STACK: [...|obj|count|type]
         mv.visitLdcInsn((long)-1);
         // STACK: [...|obj|count|type|size]
         mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			   "com/foursquare/heapaudit/HeapUtil",
-			   "record",
-			   "(Ljava/lang/Object;ILjava/lang/String;J)V");
-	// STACK: [...]
+                           "com/foursquare/heapaudit/HeapUtil",
+                           "record",
+                           "(Ljava/lang/Object;ILjava/lang/String;J)V");
+        // STACK: [...]
 
-	if (HeapSettings.conditional) {
+        if (HeapSettings.conditional) {
 
-	    visitCleanup(mv,
-			 cleanup,
-			 finish);
-	    // STACK: [...|obj]
-	    mv.visitInsn(Opcodes.POP);
-	    // STACK: [...]
-	    visitFinish(mv,
-			finish);
-	    // STACK: [...]
+            visitCleanup(mv,
+                         cleanup,
+                         finish);
+            // STACK: [...|obj]
+            mv.visitInsn(Opcodes.POP);
+            // STACK: [...]
+            visitFinish(mv,
+                        finish);
+            // STACK: [...]
 
-	}
+        }
 
     }
 

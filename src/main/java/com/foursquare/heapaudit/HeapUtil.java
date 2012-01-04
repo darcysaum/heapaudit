@@ -11,74 +11,74 @@ public abstract class HeapUtil {
 
     public static void log(String text) {
 
-	System.out.println(text);
+        System.out.println(text);
 
     }
 
     public static void instrumentation(boolean debug,
-				       String text) {
+                                       String text) {
 
-	if (debug) {
+        if (debug) {
 
-	    log("\t" + text);
+            log("\t" + text);
 
-	}
+        }
 
     }
 
     public static void execution(boolean trace,
-				 MethodAdapter mv,
-				 String text) {
+                                 MethodAdapter mv,
+                                 String text) {
 
-	if (trace) {
+        if (trace) {
 
-	    // STACK [...]
-	    mv.visitLdcInsn(text);
-	    // STACK [...|text]
-	    mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			       "com/foursquare/heapaudit/HeapUtil",
-			       "log",
-			       "(Ljava/lang/String;)V");
-	    // STACK [...]
+            // STACK [...]
+            mv.visitLdcInsn(text);
+            // STACK [...|text]
+            mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                               "com/foursquare/heapaudit/HeapUtil",
+                               "log",
+                               "(Ljava/lang/String;)V");
+            // STACK [...]
 
-	}
+        }
 
     }
 
     protected static void visitCheck(MethodVisitor mv,
-				     Label cleanup) {
+                                     Label cleanup) {
 
-	// STACK: [...]
-	mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			   "com/foursquare/heapaudit/HeapRecorder",
-			   "hasRecorders",
-			   "()Z");
-	// STACK: [...|status]
-	mv.visitJumpInsn(Opcodes.IFEQ,
-			 cleanup);
-	// STACK: [...]
+        // STACK: [...]
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                           "com/foursquare/heapaudit/HeapRecorder",
+                           "hasRecorders",
+                           "()Z");
+        // STACK: [...|status]
+        mv.visitJumpInsn(Opcodes.IFEQ,
+                         cleanup);
+        // STACK: [...]
 
     }
 
     protected static void visitCleanup(MethodVisitor mv,
-				       Label cleanup,
-				       Label finish) {
+                                       Label cleanup,
+                                       Label finish) {
 
-	// STACK: [...]
-	mv.visitJumpInsn(Opcodes.GOTO,
-			 finish);
-	// STACK: [...]
-	mv.visitLabel(cleanup);
-	// STACK: [...]
+        // STACK: [...]
+        mv.visitJumpInsn(Opcodes.GOTO,
+                         finish);
+        // STACK: [...]
+        mv.visitLabel(cleanup);
+        // STACK: [...]
 
     }
 
     protected static void visitFinish(MethodVisitor mv,
-				      Label finish) {
+                                      Label finish) {
 
-	// STACK: [...]
-	mv.visitLabel(finish);
-	// STACK: [...]
+        // STACK: [...]
+        mv.visitLabel(finish);
+        // STACK: [...]
 
     }
 
@@ -93,11 +93,11 @@ public abstract class HeapUtil {
 
         if (size == null) {
 
-	    size = HeapRecorder.instrumentation.getObjectSize(obj);
+            size = HeapRecorder.instrumentation.getObjectSize(obj);
 
-	    sizes.put(type, size);
+            sizes.put(type, size);
 
-	}
+        }
 
         return size;
 
@@ -108,11 +108,11 @@ public abstract class HeapUtil {
 
     private static ThreadLocal<Integer> recording = new ThreadLocal<Integer>() {
 
-	@Override protected Integer initialValue() {
+        @Override protected Integer initialValue() {
 
-	    return 0;
+            return 0;
 
-	}
+        }
 
     };
 
@@ -122,7 +122,7 @@ public abstract class HeapUtil {
                               long size) {
 
         // The following suppresses recording of allocations due to the
-	// HeapAudit library itself to avoid being caught in an infinite loop.
+        // HeapAudit library itself to avoid being caught in an infinite loop.
 
         int index = recording.get();
 
@@ -130,11 +130,11 @@ public abstract class HeapUtil {
 
         if (index == 0) {
 
-	    record(count,
-		   type,
-		   size < 0 ? sizeOf(obj, type) : size);
+            record(count,
+                   type,
+                   size < 0 ? sizeOf(obj, type) : size);
 
-	}
+        }
 
         recording.set(index);
 
@@ -145,92 +145,92 @@ public abstract class HeapUtil {
 
         if (type.charAt(0) != '[') {
 
-	    record(obj,
-		   -1,
-		   type,
-		   -1);
+            record(obj,
+                   -1,
+                   type,
+                   -1);
 
-	}
+        }
         else {
 
-	    Object[] o = (Object[])obj;
+            Object[] o = (Object[])obj;
 
-	    int count = o.length;
+            int count = o.length;
 
-	    for (int i = 1; i < type.length(); ++i) {
+            for (int i = 1; i < type.length(); ++i) {
 
-		if (type.charAt(i) == '[') {
+                if (type.charAt(i) == '[') {
 
-		    switch (type.charAt(i + 1)) {
+                    switch (type.charAt(i + 1)) {
 
-		    case 'Z':
+                    case 'Z':
 
-			count *= ((boolean[])o[0]).length;
+                        count *= ((boolean[])o[0]).length;
 
-			break;
+                        break;
 
-		    case 'B':
+                    case 'B':
 
-			count *= ((byte[])o[0]).length;
+                        count *= ((byte[])o[0]).length;
 
-			break;
+                        break;
 
-		    case 'C':
+                    case 'C':
 
-			count *= ((char[])o[0]).length;
+                        count *= ((char[])o[0]).length;
 
-			break;
+                        break;
 
-		    case 'S':
+                    case 'S':
 
-			count *= ((short[])o[0]).length;
+                        count *= ((short[])o[0]).length;
 
-			break;
+                        break;
 
-		    case 'I':
+                    case 'I':
 
-			count *= ((int[])o[0]).length;
+                        count *= ((int[])o[0]).length;
 
-			break;
+                        break;
 
-		    case 'J':
+                    case 'J':
 
-			count *= ((long[])o[0]).length;
+                        count *= ((long[])o[0]).length;
 
-			break;
+                        break;
 
-		    case 'F':
+                    case 'F':
 
-			count *= ((float[])o[0]).length;
+                        count *= ((float[])o[0]).length;
 
-			break;
+                        break;
 
-		    case 'D':
+                    case 'D':
 
-			count *= ((double[])o[0]).length;
+                        count *= ((double[])o[0]).length;
 
-			break;
+                        break;
 
-		    default:
+                    default:
 
-			o = (Object[])(o[0]);
+                        o = (Object[])(o[0]);
 
-			count *= o.length;
+                        count *= o.length;
 
-		    }
+                    }
 
                 }
                 else {
 
-		    String name = type.substring(i);
+                    String name = type.substring(i);
 
-		    record(obj,
-			   count,
-			   name,
-			   sizeOf(obj, name) * count);
+                    record(obj,
+                           count,
+                           name,
+                           sizeOf(obj, name) * count);
 
-		    break;
-		}
+                    break;
+                }
 
             }
 
@@ -239,21 +239,21 @@ public abstract class HeapUtil {
     }
 
     public static void record(Object obj,
-			      int[] dimensions,
-			      String type) {
+                              int[] dimensions,
+                              String type) {
 
-	int count = 1;
+        int count = 1;
 
-	for (int i = 0; i < dimensions.length; ++i) {
+        for (int i = 0; i < dimensions.length; ++i) {
 
-	    count *= dimensions[i];
+            count *= dimensions[i];
 
-	}
+        }
 
-	record(obj,
-	       count,
-	       type,
-	       -1);
+        record(obj,
+               count,
+               type,
+               -1);
 
     }
 
@@ -261,21 +261,21 @@ public abstract class HeapUtil {
                               String type,
                               long size) {
 
-	try {
+        try {
 
-	    for (HeapRecorder recorder: HeapRecorder.getRecorders()) {
+            for (HeapRecorder recorder: HeapRecorder.getRecorders()) {
 
-		recorder.record(type,
-				count,
-				size);
+                recorder.record(type,
+                                count,
+                                size);
 
-	    }
+            }
 
-	} catch (Exception e) {
+        } catch (Exception e) {
 
-	    System.err.println(e);
+            System.err.println(e);
 
-	}
+        }
 
     }
 

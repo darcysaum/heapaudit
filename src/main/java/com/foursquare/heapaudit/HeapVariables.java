@@ -10,66 +10,66 @@ import org.objectweb.asm.commons.LocalVariablesSorter;
 public class HeapVariables extends HeapUtil {
 
     public HeapVariables(int access,
-			 String desc,
-			 boolean debug,
-			 boolean trace,
-			 HeapMethod mv) {
+                         String desc,
+                         boolean debug,
+                         boolean trace,
+                         HeapMethod mv) {
 
-	this.debug = debug;
+        this.debug = debug;
 
-	this.trace = trace;
+        this.trace = trace;
 
-	this.mv = mv.mv;
+        this.mv = mv.mv;
 
-	this.lvs = new LocalVariablesSorter(access,
-					    desc,
-					    mv);
+        this.lvs = new LocalVariablesSorter(access,
+                                            desc,
+                                            mv);
 
     }
 
     public int define(Type type,
-		      Label start,
-		      Label end) {
+                      Label start,
+                      Label end) {
 
-	int index = lvs.newLocal(type);
+        int index = lvs.newLocal(type);
 
-	instrumentation(debug,
-			"\tDEFINE #" + index);
+        instrumentation(debug,
+                        "\tDEFINE #" + index);
 
-	execution(trace,
-		  mv,
-		  "\tDEFINE #" + index);
+        execution(trace,
+                  mv,
+                  "\tDEFINE #" + index);
 
-	variables.add(new Variable(index,
-				   type,
-				   start,
-				   end));
+        variables.add(new Variable(index,
+                                   type,
+                                   start,
+                                   end));
 
-	return index;
+        return index;
 
     }
 
     public void declare() {
 
-	for (Variable variable: variables) {
+        for (Variable variable: variables) {
 
-	    instrumentation(debug,
-			    "\tDECLARE #" + variable.index);
+            instrumentation(debug,
+                            "\tDECLARE #" + variable.index);
 
-	    execution(trace,
-		      mv,
-		      "\tDECLARE #" + variable.index);
+            execution(trace,
+                      mv,
+                      "\tDECLARE #" + variable.index);
 
-	    mv.visitLocalVariable("$" + variable.index,
-				  variable.type.getDescriptor(),
-				  null,
-				  variable.start,
-				  variable.end,
-				  variable.index);
+            mv.visitLocalVariable("$" + variable.index,
+                                  variable.type.getDescriptor(),
+                                  null,
+                                  variable.start,
+                                  variable.end,
+                                  variable.index);
 
-	}
+        }
 
-	variables = null;
+        variables = null;
 
     }
 
@@ -83,28 +83,28 @@ public class HeapVariables extends HeapUtil {
 
     class Variable {
 
-	public Variable(int index,
-			Type type,
-			Label start,
-			Label end) {
+        public Variable(int index,
+                        Type type,
+                        Label start,
+                        Label end) {
 
-	    this.index = index;
+            this.index = index;
 
-	    this.type = type;
+            this.type = type;
 
-	    this.start = start;
+            this.start = start;
 
-	    this.end = end;
+            this.end = end;
 
-	}
+        }
 
-	public final int index;
+        public final int index;
 
-	public final Type type;
+        public final Type type;
 
-	public final Label start;
+        public final Label start;
 
-	public final Label end;
+        public final Label end;
 
     }
 

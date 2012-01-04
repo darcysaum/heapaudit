@@ -11,74 +11,74 @@ class HeapCLONEARRAY extends HeapUtil {
     // newly allocated array object.
 
     public static void after(boolean debug,
-			     boolean trace,
-			     MethodAdapter mv,
-			     String owner) {
+                             boolean trace,
+                             MethodAdapter mv,
+                             String owner) {
 
-	instrumentation(debug,
-			"\tCLONEARRAY.after");
+        instrumentation(debug,
+                        "\tCLONEARRAY.after");
 
-	execution(trace,
-		  mv,
-		  "\tCLONEARRAY.after");
+        execution(trace,
+                  mv,
+                  "\tCLONEARRAY.after");
 
-	Label finish = new Label();
+        Label finish = new Label();
 
-	if (HeapSettings.conditional) {
+        if (HeapSettings.conditional) {
 
-	    // STACK: [...|obj]
-	    visitCheck(mv,
-		       finish);
-	    // STACK: [...|obj]
+            // STACK: [...|obj]
+            visitCheck(mv,
+                       finish);
+            // STACK: [...|obj]
 
-	}
+        }
 
-	// STACK: [...|obj]
-	mv.visitInsn(Opcodes.DUP);
-	// STACK: [...|obj|obj]
-	mv.visitTypeInsn(Opcodes.CHECKCAST,
-			 owner);
-	// STACK: [...|obj|obj]
+        // STACK: [...|obj]
+        mv.visitInsn(Opcodes.DUP);
+        // STACK: [...|obj|obj]
+        mv.visitTypeInsn(Opcodes.CHECKCAST,
+                         owner);
+        // STACK: [...|obj|obj]
 
-	if (owner.charAt(1) != '[') {                                                                                                                                                      
+        if (owner.charAt(1) != '[') {                                                                                                                                                      
 
-	    // STACK: [...|obj|obj]
-	    mv.visitInsn(Opcodes.DUP);
-	    // STACK: [...|obj|obj|obj]
-	    mv.visitInsn(Opcodes.ARRAYLENGTH);
-	    // STACK: [...|obj|obj|count]
-	    mv.visitLdcInsn(owner.substring(1));
-	    // STACK: [...|obj|obj|count|type]
-	    mv.visitLdcInsn((long)-1);
-	    // STACK: [...|obj|obj|count|type|size]
-	    mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			       "com/foursquare/heapaudit/HeapUtil",
-			       "record",
-			       "(Ljava/lang/Object;ILjava/lang/String;J)V");
-	    // STACK: [...|obj]
+            // STACK: [...|obj|obj]
+            mv.visitInsn(Opcodes.DUP);
+            // STACK: [...|obj|obj|obj]
+            mv.visitInsn(Opcodes.ARRAYLENGTH);
+            // STACK: [...|obj|obj|count]
+            mv.visitLdcInsn(owner.substring(1));
+            // STACK: [...|obj|obj|count|type]
+            mv.visitLdcInsn((long)-1);
+            // STACK: [...|obj|obj|count|type|size]
+            mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                               "com/foursquare/heapaudit/HeapUtil",
+                               "record",
+                               "(Ljava/lang/Object;ILjava/lang/String;J)V");
+            // STACK: [...|obj]
 
-	}
-	else {
+        }
+        else {
 
-	    // STACK: [...|obj|obj]
-	    mv.visitLdcInsn(owner);
-	    // STACK: [...|obj|obj|type]
-	    mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			       "com/foursquare/heapaudit/HeapUtil",
-			       "record",
-			       "(Ljava/lang/Object;Ljava/lang/String;)V");
-	    // STACK: [...|obj]
+            // STACK: [...|obj|obj]
+            mv.visitLdcInsn(owner);
+            // STACK: [...|obj|obj|type]
+            mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+                               "com/foursquare/heapaudit/HeapUtil",
+                               "record",
+                               "(Ljava/lang/Object;Ljava/lang/String;)V");
+            // STACK: [...|obj]
 
-	}
+        }
 
-	if (HeapSettings.conditional) {
+        if (HeapSettings.conditional) {
 
-	    // STACK: [...|obj]
-	    visitFinish(mv,
-			finish);
-	    // STACK: [...|obj]
+            // STACK: [...|obj]
+            visitFinish(mv,
+                        finish);
+            // STACK: [...|obj]
 
-	}
+        }
 
     }
 
