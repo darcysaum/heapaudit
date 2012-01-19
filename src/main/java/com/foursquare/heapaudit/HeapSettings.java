@@ -78,12 +78,13 @@ class HeapSettings {
                                              new Pattern("org/jcp/.+"),
                                              new Pattern("org/xml/.+"),
                                              new Pattern("com/apple/.+"),
+					     new Pattern("apple/.+"),
                                              new Pattern("com/sun/.+"),
                                              new Pattern("sun/.+")));
 
         if (args != null) {
 
-            for (String arg: args.split(" ")) {
+            for (String arg: args.split("[ #]")) {
 
                 if ((arg.length() < 2) ||
                     (arg.charAt(0) != '-')) {
