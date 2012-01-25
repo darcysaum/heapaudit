@@ -78,9 +78,11 @@ class HeapSettings {
                                              new Pattern("org/jcp/.+"),
                                              new Pattern("org/xml/.+"),
                                              new Pattern("com/apple/.+"),
-					     new Pattern("apple/.+"),
+                                             new Pattern("apple/.+"),
                                              new Pattern("com/sun/.+"),
-                                             new Pattern("sun/.+")));
+                                             new Pattern("sun/.+"),
+                                             new Pattern("oracle/.+"),
+                                             new Pattern("jrockit/.+")));
 
         if (args != null) {
 
