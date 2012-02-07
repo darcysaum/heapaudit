@@ -16,7 +16,7 @@ public class TestMULTIARRAY extends TestUtil {
 
 	assertTrue(expect("int",
 			  15,
-			  480));
+			  152));
 
     }
 
@@ -28,7 +28,7 @@ public class TestMULTIARRAY extends TestUtil {
 
 	assertTrue(expect("com.foursquare.heapaudit.test.TestChild",
 			  7,
-			  392));
+			  72));
 
     }
 

@@ -95,7 +95,8 @@ public abstract class HeapUtil {
 
             size = HeapRecorder.instrumentation.getObjectSize(obj);
 
-            sizes.put(type, size);
+            sizes.put(type,
+                      size);
 
         }
 
@@ -153,6 +154,10 @@ public abstract class HeapUtil {
         }
         else {
 
+            long overhead = 0;
+
+            int length = 0;
+
             Object[] o = (Object[])obj;
 
             int count = o.length;
@@ -161,53 +166,62 @@ public abstract class HeapUtil {
 
                 if (type.charAt(i) == '[') {
 
+                    overhead += sizeOf(o,
+                                       "" + o.length + type.substring(i - 1));
+
                     switch (type.charAt(i + 1)) {
 
                     case 'Z':
 
-                        count *= ((boolean[])o[0]).length;
+                        length = ((boolean[])o[0]).length;
 
                         break;
 
                     case 'B':
 
-                        count *= ((byte[])o[0]).length;
+                        length = ((byte[])o[0]).length;
 
                         break;
 
                     case 'C':
 
-                        count *= ((char[])o[0]).length;
+                        length = ((char[])o[0]).length;
 
                         break;
 
                     case 'S':
 
-                        count *= ((short[])o[0]).length;
+                        length = ((short[])o[0]).length;
 
                         break;
 
                     case 'I':
 
-                        count *= ((int[])o[0]).length;
+                        length = ((int[])o[0]).length;
 
                         break;
 
                     case 'J':
 
-                        count *= ((long[])o[0]).length;
+                        length = ((long[])o[0]).length;
 
                         break;
 
                     case 'F':
 
-                        count *= ((float[])o[0]).length;
+                        length = ((float[])o[0]).length;
 
                         break;
 
                     case 'D':
 
-                        count *= ((double[])o[0]).length;
+                        length = ((double[])o[0]).length;
+
+                        break;
+
+                    case 'L':
+
+                        length = ((Object[])o[0]).length;
 
                         break;
 
@@ -222,12 +236,11 @@ public abstract class HeapUtil {
                 }
                 else {
 
-                    String name = type.substring(i);
-
                     record(obj,
-                           count,
-                           name,
-                           sizeOf(obj, name) * count);
+                           count * length,
+                           type.substring(i),
+                           overhead + count * sizeOf(o[0],
+                                                     "" + length + type.substring(i - 1)));
 
                     break;
                 }
